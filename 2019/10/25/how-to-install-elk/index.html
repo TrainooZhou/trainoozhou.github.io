@@ -1,0 +1,1382 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+<title>ELK安装以及配置 - Trainoo的博客</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+    <meta name="description" content="ELK是Elasticsearch、Logstash、Kibana的简称，这三者是核心套件，但并非全部。 关于这三者的具体介绍可以移步官方网站查看详情，此文介绍如何安装ELK">
+<meta name="keywords" content="elasticsearch,logstash,kibana,filebeat">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ELK安装以及配置">
+<meta property="og:url" content="http://yoursite.com/2019/10/25/how-to-install-elk/index.html">
+<meta property="og:site_name" content="Trainoo的博客">
+<meta property="og:description" content="ELK是Elasticsearch、Logstash、Kibana的简称，这三者是核心套件，但并非全部。 关于这三者的具体介绍可以移步官方网站查看详情，此文介绍如何安装ELK">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://yoursite.com/picture/2019/20191025002.png">
+<meta property="og:updated_time" content="2020-01-02T03:30:38.329Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="ELK安装以及配置">
+<meta name="twitter:description" content="ELK是Elasticsearch、Logstash、Kibana的简称，这三者是核心套件，但并非全部。 关于这三者的具体介绍可以移步官方网站查看详情，此文介绍如何安装ELK">
+<meta name="twitter:image" content="http://yoursite.com/picture/2019/20191025002.png">
+
+
+
+<link rel="alternative" href="/atom.xml" title="ELK安装以及配置" type="application/atom+xml">
+
+
+
+<link rel="icon" href="/img/favicon.png">
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.7.2/css/bulma.css">
+<link rel="stylesheet" href="/./css/all.css">
+<link rel="stylesheet" href="/./css/fonts.googleapis.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/atom-one-light.css">
+
+
+    
+    
+    
+    <style>body>.footer,body>.navbar,body>.section{opacity:0}</style>
+    
+
+    
+    
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.6.8/dist/css/lightgallery.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/css/justifiedGallery.min.css">
+    
+
+    
+    
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.css">
+
+
+    
+    
+    
+    
+
+<link rel="stylesheet" href="/css/back-to-top.css">
+
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+<link rel="stylesheet" href="/css/progressbar.css">
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+
+    
+    
+    
+
+    
+    
+    
+        <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    
+
+    
+
+
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="is-3-column">
+    <nav class="navbar navbar-main">
+    <div class="container">
+        <div class="navbar-brand is-flex-center">
+            <a class="navbar-item navbar-logo" href="/">
+            
+                <img src="/img/logo.png" alt="ELK安装以及配置" height="28">
+            
+            </a>
+        </div>
+        <div class="navbar-menu">
+            
+            <div class="navbar-start">
+                
+                <a class="navbar-item" href="/">主页</a>
+                
+                <a class="navbar-item" href="/archives">时间轴</a>
+                
+                <a class="navbar-item" href="/categories/相册/">相册</a>
+                
+                <a class="navbar-item" href="/about">关于</a>
+                
+            </div>
+            
+            <div class="navbar-end">
+                
+                    
+                    
+                    <a class="navbar-item" target="_blank" title="My GitHub" href="https://github.com/trainoozhou">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                    
+                
+                
+                
+                <a class="navbar-item search" title="搜索" href="javascript:;">
+                    <i class="fas fa-search"></i>
+                </a>
+                
+                <a class="navbar-item" id="night-nav" title="Night Mode" href="javascript:;">
+                    <i class="fas fa-moon" id="night-icon"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</nav>
+    
+
+	
+    <canvas id="universe"></canvas>
+    <section class="section">
+        <div class="container">
+            <div class="columns">
+                <div class="column is-6-tablet is-6-desktop is-9-widescreen has-order-2 column-main"><div class="card">
+    
+    <div class="card-image">
+        <span class="image is-7by1">
+            <img class="thumbnail" src="/picture/2019/20191025001.png" alt="ELK安装以及配置">
+        </span>
+    </div>
+    
+    <div class="card-content article ">
+        
+        <div class="level article-meta is-size-7 is-uppercase is-mobile is-overflow-x-auto">
+            <div class="level-left">
+                <time class="level-item has-text-grey" datetime="2019-10-24T16:00:00.000Z">2019-10-25</time>
+                
+                
+                <span class="level-item has-text-grey">
+                    
+                    
+                    9 分钟 读完 (大约 1301 个字)
+                </span>
+                
+                
+                <span class="level-item has-text-grey" id="busuanzi_container_page_pv">
+                    <i class="far fa-eye"></i>
+                    <span id="busuanzi_value_page_pv">0</span>次访问
+                </span>
+                
+            </div>
+        </div>
+        
+        <h1 class="title is-size-3 is-size-4-mobile has-text-weight-normal">
+            
+                ELK安装以及配置
+            
+        </h1>
+        <div class="content">
+            <p>ELK是Elasticsearch、Logstash、Kibana的简称，这三者是核心套件，但并非全部。</p>
+<p>关于这三者的具体介绍可以移步官方网站查看详情，此文介绍如何安装ELK</p>
+<a id="more"></a>
+<h4 id="一、部署环境"><a href="#一、部署环境" class="headerlink" title="一、部署环境"></a>一、部署环境</h4><ul>
+<li>CentOS-6.x</li>
+<li>Java-1.8</li>
+<li>ELK-7.4.0</li>
+<li>系统部署如下图<br><img src="/picture/2019/20191025002.png"></li>
+</ul>
+<h4 id="二、ELK安装-使用yum方式"><a href="#二、ELK安装-使用yum方式" class="headerlink" title="二、ELK安装 - 使用yum方式"></a>二、ELK安装 - 使用yum方式</h4><p>ps:此方式安装请使用centos6以上版本</p>
+<ol>
+<li><p>下载并安装公共签名密钥</p>
+<figure class="highlight groovy hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rpm --<span class="hljs-keyword">import</span> <span class="hljs-string">https:</span><span class="hljs-comment">//artifacts.elastic.co/GPG-KEY-elasticsearch</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>在<code>/etc/yum.repos.d/</code>目录新建<code>elastic.repo</code>文件并添加以下内容</p>
+<figure class="highlight ini hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-section">[elastic-7.x]</span></span><br><span class="line"><span class="hljs-attr">name</span>=Elastic repository for <span class="hljs-number">7</span>.x packages</span><br><span class="line"><span class="hljs-attr">baseurl</span>=https://artifacts.elastic.co/packages/<span class="hljs-number">7</span>.x/yum</span><br><span class="line"><span class="hljs-attr">gpgcheck</span>=<span class="hljs-number">1</span></span><br><span class="line"><span class="hljs-attr">gpgkey</span>=https://artifacts.elastic.co/GPG-KEY-elasticsearch</span><br><span class="line"><span class="hljs-attr">enabled</span>=<span class="hljs-number">1</span></span><br><span class="line"><span class="hljs-attr">autorefresh</span>=<span class="hljs-number">1</span></span><br><span class="line"><span class="hljs-attr">type</span>=rpm-md</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>执行yum命令，安装elasticsearch、logstash、kibana、filebeat</p>
+<figure class="highlight cmake hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">sudo yum <span class="hljs-keyword">install</span> elasticsearch</span><br><span class="line">sudo yum <span class="hljs-keyword">install</span> logstash</span><br><span class="line">sudo yum <span class="hljs-keyword">install</span> kibana</span><br><span class="line">sudo yum <span class="hljs-keyword">install</span> filebeat</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>其他安装方式（详见官方文档）</p>
+<ul>
+<li><a href="https://www.elastic.co/cn/downloads/elasticsearch" target="_blank" rel="noopener">Elasticsearch官方安装文档</a> </li>
+<li><a href="https://www.elastic.co/cn/downloads/logstash" target="_blank" rel="noopener">Logstash官方安装文档</a> </li>
+<li><a href="https://www.elastic.co/cn/downloads/kibana" target="_blank" rel="noopener">Kibana官方安装文档</a> </li>
+<li><a href="https://www.elastic.co/cn/downloads/beats/filebeat" target="_blank" rel="noopener">Filebeat官方安装文档</a> </li>
+</ul>
+</li>
+</ol>
+<h4 id="三、安装-kafka（QuickStart）"><a href="#三、安装-kafka（QuickStart）" class="headerlink" title="三、安装 kafka（QuickStart）"></a>三、安装 kafka（<a href="http://kafka.apache.org/quickstart" target="_blank" rel="noopener">QuickStart</a>）</h4><ol>
+<li><p>下载安装</p>
+<figure class="highlight clean hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"># 版本更新换代，最新版本见官网</span><br><span class="line">wget http:<span class="hljs-comment">//mirrors.tuna.tsinghua.edu.cn/apache/kafka/2.3.0/kafka_2.12-2.3.0.tgz</span></span><br><span class="line"></span><br><span class="line"># 解压</span><br><span class="line">tar -xzf kafka_2<span class="hljs-number">.12</span><span class="hljs-number">-2.3</span><span class="hljs-number">.0</span>.tgz</span><br><span class="line">cd kafka_2<span class="hljs-number">.12</span><span class="hljs-number">-2.3</span><span class="hljs-number">.0</span></span><br><span class="line"></span><br><span class="line"># 配置[vim config/server.properties]（该配置不能是<span class="hljs-number">0.0</span><span class="hljs-number">.0</span><span class="hljs-number">.0</span>或<span class="hljs-number">127.0</span><span class="hljs-number">.0</span><span class="hljs-number">.1</span>或localhost,需为具体地址）</span><br><span class="line">############################# Socket Server Settings #############################</span><br><span class="line">listeners=PLAINTEXT:<span class="hljs-comment">//192.168.0.102:9092</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>启动、停止服务</p>
+<figure class="highlight clean hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"># kafka需要依赖Zookeeper，所以必须先启动一个zookeeper服务。</span><br><span class="line"># 如果你没有安装ZK，那么kafka自带了一个，你只需要执行以下命令启动一个ZK实例</span><br><span class="line">bin/zookeeper-server-start.sh config/zookeeper.properties</span><br><span class="line"></span><br><span class="line"># 如果你有自己的ZK的话，那么你需要修改`config/server.properties`文件中如下内容</span><br><span class="line">############################# Zookeeper #############################</span><br><span class="line">zookeeper.connect=localhost:<span class="hljs-number">2181</span></span><br><span class="line"></span><br><span class="line"># 以下命令守护进程方式启动kafka</span><br><span class="line">bin/kafka-server-start.sh -daemon config/server.properties</span><br><span class="line"></span><br><span class="line"># 停止kafka</span><br><span class="line">bin/kafka-server-stop.sh</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>版本(kafka_2.12-2.3.0)需要jdk-1.8，所以如果本地jdk版本小于1.8，启动会出现如下错误</p>
+<figure class="highlight css hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-selector-tag">Unsupported</span> <span class="hljs-selector-tag">major</span><span class="hljs-selector-class">.minor</span> <span class="hljs-selector-tag">version</span> 52<span class="hljs-selector-class">.0</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>如果你不想（能）更换默认的jdk版本，那么你只需要下载另一个jdk，然后修改启动配置文件<br>此时要修改文件<code>bin/kafka-run-class.sh</code>并添加上<code>JAVA_HOME=your_path_here</code></p>
+<figure class="highlight bash hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-comment"># Which java to use</span></span><br><span class="line"><span class="hljs-keyword">if</span> [ -z <span class="hljs-string">"<span class="hljs-variable">$JAVA_HOME</span>"</span> ]; <span class="hljs-keyword">then</span></span><br><span class="line">  JAVA=<span class="hljs-string">"java"</span></span><br><span class="line"><span class="hljs-keyword">else</span></span><br><span class="line">  JAVA_HOME=<span class="hljs-string">"/usr/local/java/jdk1.8.0_191-x64"</span>  <span class="hljs-comment">#此处换成另一个jdk路径</span></span><br><span class="line">  JAVA=<span class="hljs-string">"<span class="hljs-variable">$JAVA_HOME</span>/bin/java"</span></span><br><span class="line"><span class="hljs-keyword">fi</span></span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<h4 id="四、配置-启动-Filebeat"><a href="#四、配置-启动-Filebeat" class="headerlink" title="四、配置\启动 Filebeat"></a>四、配置\启动 Filebeat</h4><ol>
+<li><p>配置。众所周知，filebeat需要配置一个input跟output，编辑文件<code>/etc/filebeat/filebeat.yml</code></p>
+<figure class="highlight yaml hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-comment">#=========================== Filebeat inputs =============================</span></span><br><span class="line"><span class="hljs-string">filebeat.inputs:</span></span><br><span class="line"><span class="hljs-attr">- type:</span> <span class="hljs-string">log</span></span><br><span class="line"><span class="hljs-attr">  enabled:</span> <span class="hljs-literal">true</span></span><br><span class="line"><span class="hljs-attr">  paths:</span></span><br><span class="line"><span class="hljs-bullet">    -</span> <span class="hljs-string">/usr/logs/test/*.log</span></span><br><span class="line"><span class="hljs-attr">  fields:</span></span><br><span class="line"><span class="hljs-attr">    topic:</span> <span class="hljs-string">test-log</span></span><br><span class="line">    </span><br><span class="line"><span class="hljs-attr">- type:</span> <span class="hljs-string">log</span></span><br><span class="line"><span class="hljs-attr">  enabled:</span> <span class="hljs-literal">true</span></span><br><span class="line"><span class="hljs-attr">  paths:</span></span><br><span class="line"><span class="hljs-bullet">    -</span> <span class="hljs-string">/opt/tomcat/logs/catalina.out</span></span><br><span class="line"><span class="hljs-attr">  fields:</span></span><br><span class="line"><span class="hljs-attr">    topic:</span> <span class="hljs-string">tomcat-log</span></span><br><span class="line"></span><br><span class="line"><span class="hljs-comment">#================================ Outputs =====================================</span></span><br><span class="line"><span class="hljs-comment">#----------------------------- Kafka output --------------------------------</span></span><br><span class="line"><span class="hljs-string">output.kafka:</span></span><br><span class="line"><span class="hljs-attr">  hosts:</span> <span class="hljs-string">["192.168.0.102:9092"]</span>   <span class="hljs-comment"># kafka listeners address</span></span><br><span class="line"><span class="hljs-attr">  topic:</span> <span class="hljs-string">'<span class="hljs-template-variable">%&#123;[fields][topic]&#125;</span>'</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>启动</p>
+<figure class="highlight crmsh hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">service filebeat <span class="hljs-literal">start</span></span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<h4 id="五、配置-启动-Logstash"><a href="#五、配置-启动-Logstash" class="headerlink" title="五、配置\启动 Logstash"></a>五、配置\启动 Logstash</h4><ol>
+<li><p>众所周知，配置logstash是最麻烦的，我们先说它的启动方式。</p>
+<figure class="highlight jboss-cli hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-comment"># 虽然同样是用yum方式安装的，但是logstash并没有被安装成一个服务。</span></span><br><span class="line"><span class="hljs-comment"># 我目前也不知道为什么，可能是因为它的启动方式有关？</span></span><br><span class="line"><span class="hljs-comment"># 所以这里我只能到它的安装目录去启动</span></span><br><span class="line"><span class="hljs-keyword">cd</span> <span class="hljs-string">/usr/share/logstash</span></span><br><span class="line"></span><br><span class="line"><span class="hljs-comment"># Logstash启动方式有两种，个人建议使用B方式，把不同的日志处理放在不同配置里</span></span><br><span class="line"><span class="hljs-comment"># A. 单文件启动方式</span></span><br><span class="line">bin/logstash -f <span class="hljs-string">/etc/logstash/conf.d/logstash.conf</span> <span class="hljs-params">--path</span>.settings <span class="hljs-string">/etc/logstash/</span></span><br><span class="line"></span><br><span class="line"><span class="hljs-comment"># B. 多配置文件的启动</span></span><br><span class="line">bin/logstash -f <span class="hljs-string">/etc/logstash/conf.d/</span> <span class="hljs-params">--path</span>.settings <span class="hljs-string">/etc/logstash/</span></span><br><span class="line"></span><br><span class="line"><span class="hljs-comment"># logstash的停止没有提供相关的命令，目前发现只能 kill -9</span></span><br><span class="line"><span class="hljs-comment"># 所以logstash配置文件自动加载这个功能我觉得还是开启比较方便，省了很多事</span></span><br><span class="line">vim <span class="hljs-string">/etc/logstash/logstash.yml</span></span><br><span class="line"></span><br><span class="line"><span class="hljs-comment"># 如下配置，配置文件就会每隔5秒重新加载，这样修改了配置文件就不用重启logstash了</span></span><br><span class="line"><span class="hljs-comment"># ------------ Pipeline Configuration Settings --------------</span></span><br><span class="line">config.<span class="hljs-keyword">reload</span>.automatic: <span class="hljs-literal">true</span></span><br><span class="line">config.<span class="hljs-keyword">reload</span>.interval: 5s</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>配置，同样logstash也是有input跟output的配置项，同时还有个filter用来过滤日志</p>
+<figure class="highlight puppet hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-comment"># 新建一个配置文件，如 test-log.conf 用来处理 filebeat 中的 test-log</span></span><br><span class="line">vim /etc/logstash/conf.d/test-log.conf</span><br><span class="line"></span><br><span class="line"><span class="hljs-comment"># test-log.conf 中配置内容如下：</span></span><br><span class="line"><span class="hljs-keyword">input</span> &#123;</span><br><span class="line">  kafka &#123;</span><br><span class="line">    <span class="hljs-attr">bootstrap_servers</span> =&gt; <span class="hljs-string">"192.168.0.102:9092"</span></span><br><span class="line">    <span class="hljs-attr">client_id</span> =&gt; <span class="hljs-string">"logstash-test-log"</span></span><br><span class="line">    <span class="hljs-attr">topics</span> =&gt; [<span class="hljs-string">"test-log"</span>]</span><br><span class="line">    <span class="hljs-attr">type</span> =&gt; <span class="hljs-string">"test-log"</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="hljs-keyword">filter</span> &#123;</span><br><span class="line">  <span class="hljs-keyword">if</span> [<span class="hljs-built_in">type</span>] == <span class="hljs-string">"test-log"</span> &#123;</span><br><span class="line">    grok &#123;</span><br><span class="line">      <span class="hljs-attr">match</span> =&gt; &#123;<span class="hljs-string">"message"</span> =&gt; <span class="hljs-string">"\"message\":\"(?&lt;message&gt;.*?[^\\])\""</span>&#125;</span><br><span class="line">      <span class="hljs-keyword">overwrite</span> =&gt; [<span class="hljs-string">"message"</span>]</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="hljs-keyword">grok</span> &#123;</span><br><span class="line">      <span class="hljs-attr">match</span> =&gt; [<span class="hljs-string">"message"</span>, <span class="hljs-string">"%&#123;TIMESTAMP_ISO8601:logdate&#125;"</span>]</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="hljs-keyword">date</span> &#123;</span><br><span class="line">      <span class="hljs-attr">match</span> =&gt; [<span class="hljs-string">"logdate"</span>, <span class="hljs-string">"ISO8601"</span>]</span><br><span class="line">      <span class="hljs-attr">target</span> =&gt; <span class="hljs-string">"@timestamp"</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="hljs-keyword">mutate</span> &#123;</span><br><span class="line">      <span class="hljs-attr">remove_field</span> =&gt; [<span class="hljs-string">"@version"</span>, <span class="hljs-string">"logdate"</span>]</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="hljs-keyword">output</span> &#123;</span><br><span class="line">  <span class="hljs-keyword">if</span> [<span class="hljs-built_in">type</span>] == <span class="hljs-string">"test-log"</span> &#123;</span><br><span class="line">    elasticsearch &#123;</span><br><span class="line">      <span class="hljs-attr">hosts</span> =&gt; [<span class="hljs-string">"http://localhost:9200"</span>]</span><br><span class="line">	  <span class="hljs-attr">index</span> =&gt; <span class="hljs-string">"test-log-%&#123;+YYYY.MM.dd&#125;"</span></span><br><span class="line">	  <span class="hljs-comment">#user =&gt; "$&#123;ES_USER&#125;"</span></span><br><span class="line">	  <span class="hljs-comment">#password =&gt; "$&#123;ES_PWD&#125;"</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>同理，可以创建<code>tomcat-log.conf</code>来处理tomcat的日志信息</p>
+</li>
+<li>使用<code>if [type] == &quot;test-log&quot;</code> 可以很好的区分不同的日志，针对不同的日志使用不同的处理方式，或输出到不同的index里</li>
+<li><a href="http://doc.yonyoucloud.com/doc/logstash-best-practice-cn/index.html" target="_blank" rel="noopener">Logstash最佳实践</a></li>
+</ol>
+<h4 id="六、启动-Elasticsearch"><a href="#六、启动-Elasticsearch" class="headerlink" title="六、启动 Elasticsearch"></a>六、启动 Elasticsearch</h4><figure class="highlight crmsh hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">service elasticsearch <span class="hljs-literal">start</span></span><br></pre></td></tr></table></figure>
+<h4 id="七、配置-启动-Kibana"><a href="#七、配置-启动-Kibana" class="headerlink" title="七、配置\启动 Kibana"></a>七、配置\启动 Kibana</h4><ol>
+<li>配置</li>
+</ol>
+<figure class="highlight avrasm hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">vim /etc/kibana/kibana.yml</span><br><span class="line"></span><br><span class="line"><span class="hljs-meta"># 配置kibana的访问地址跟端口号，以及elasticsearch的访问地址</span></span><br><span class="line"><span class="hljs-symbol">server.port:</span> <span class="hljs-number">5601</span></span><br><span class="line"><span class="hljs-symbol">server.host:</span> <span class="hljs-number">0.0</span><span class="hljs-number">.0</span><span class="hljs-number">.0</span></span><br><span class="line"><span class="hljs-symbol">elasticsearch.hosts:</span> [<span class="hljs-string">"http://localhost:9200"</span>]</span><br><span class="line"></span><br><span class="line"><span class="hljs-meta"># 可选配置，kibana日志输出</span></span><br><span class="line"><span class="hljs-meta">#logging.dest: /tmp/kibana.log</span></span><br></pre></td></tr></table></figure>
+<ol start="2">
+<li>启动<figure class="highlight crmsh hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">service kibana <span class="hljs-literal">start</span></span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<h4 id="八、如何使用日志处理工具"><a href="#八、如何使用日志处理工具" class="headerlink" title="八、如何使用日志处理工具"></a>八、如何使用日志处理工具</h4><ol>
+<li><p>访问 Kibana</p>
+<figure class="highlight dts hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-symbol">http:</span><span class="hljs-comment">//localhost:5601</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>创建 Index Pattern</p>
+<figure class="highlight n1ql hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">访问kibana &gt;&gt;&gt; Management &gt;&gt;&gt; <span class="hljs-keyword">Index</span> Patterns &gt;&gt;&gt; <span class="hljs-keyword">Create</span> <span class="hljs-keyword">Index</span> Pattern</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>查询日志</p>
+<figure class="highlight ruby hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">访问kibana <span class="hljs-meta">&gt;&gt;&gt; </span>Discover &gt;&gt;&gt; Search</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+
+        </div>
+        
+        <div class="level is-size-7 is-uppercase">
+            <div class="level-start">
+                <div class="level-item">
+                    <span class="is-size-6 has-text-grey has-mr-7">#</span>
+                    <a class="has-link-grey -link" href="/tags/elasticsearch/">elasticsearch</a>, <a class="has-link-grey -link" href="/tags/filebeat/">filebeat</a>, <a class="has-link-grey -link" href="/tags/kibana/">kibana</a>, <a class="has-link-grey -link" href="/tags/logstash/">logstash</a>
+                </div>
+            </div>
+        </div>
+        
+        
+        
+        <div class="social-share"></div>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js@1.0.16/dist/css/share.min.css">
+<script src="https://cdn.jsdelivr.net/npm/social-share.js@1.0.16/dist/js/social-share.min.js"></script>
+        
+		
+		
+<div>
+	<ul class="post-copyright">
+	  <li class="post-copyright-author">
+	  <strong>作者:  </strong>Trainoo
+	  </li>
+	  <li class="post-copyright-link">
+	  <strong>本文链接:  </strong>
+	  <a href="/2019/10/25/how-to-install-elk/" target="_blank" title="ELK安装以及配置" class="artTitle">2019/10/25/how-to-install-elk/</a>
+	  </li>
+	  <li class="post-copyright-license">
+		<strong>版权声明:   </strong>
+		本博客所有文章除特别声明外,均采用 <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">CC BY-NC-ND 4.0</a>
+		许可协议。转载请注明出处!
+	  </li>
+	</ul>
+<div>
+</div></div>
+		
+		
+		
+		<div class="card card-transparent" style="margin-top: 20px;">
+			<div class="level post-navigation is-flex-wrap is-mobile">
+				
+				<div class="level-start">
+					<a class="level level-item has-link-grey  article-nav-prev" href="/2019/10/26/a-few-kafka-command/">
+						<i class="level-item fas fa-chevron-left"></i>
+						<span class="level-item">Kafka的几个命令</span>
+					</a>
+				</div>
+				
+				
+				<div class="level-end">
+					<a class="level level-item has-link-grey  article-nav-next" href="/2019/10/04/pictures-in-xining-06/">
+						<span class="level-item">西宁之旅-06[图集]</span>
+						<i class="level-item fas fa-chevron-right"></i>
+					</a>
+				</div>
+				
+			</div>
+		</div>
+		
+    </div>
+</div>
+
+
+<div class="card">
+    <div class="card-content">
+        <h3 class="menu-label has-text-centered">喜欢这篇文章？打赏一下作者吧</h3>
+        <div class="buttons is-centered">
+            
+                
+<a class="button is-info donate">
+    <span class="icon is-small">
+        <i class="fab fa-alipay"></i>
+    </span>
+    <span>支付宝</span>
+    <div class="qrcode"><img src="/img/alipay.png" alt="支付宝"></div>
+</a>
+
+                
+                
+<a class="button is-success donate">
+    <span class="icon is-small">
+        <i class="fab fa-weixin"></i>
+    </span>
+    <span>微信</span>
+    <div class="qrcode"><img src="/img/wechatpay.png" alt="微信"></div>
+</a>
+
+                
+        </div>
+    </div>
+</div>
+
+</div>
+                
+
+
+
+
+
+
+<div class="column is-4-tablet is-4-desktop is-3-widescreen  has-order-3 column-left ">
+    
+        
+<div class="card widget">
+    <div class="card-content">
+        <nav class="level">
+            <div class="level-item has-text-centered">
+                <div>
+                    
+                        <img class="image is-128x128 has-mb-6" src="/img/header.png" alt="Trainoo">
+                    
+                    
+                    <p class="is-size-4 is-block">
+                        Trainoo
+                    </p>
+                    
+                        <div id="binft"></div>
+                    <!---->
+                    <!--<p class="is-size-6 is-block">-->
+                        <!--A simple man living a simple life-->
+                    <!--</p>-->
+                    
+                    
+                    <p class="is-size-6 is-flex is-flex-center has-text-grey">
+                        <i class="fas fa-map-marker-alt has-mr-7"></i>
+                        <span>ShenZhen,China</span>
+                    </p>
+                    
+                </div>
+            </div>
+        </nav>
+        <nav class="level is-mobile">
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        文章
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        51
+                    </p>
+                </div>
+            </div>
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        分类
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        5
+                    </p>
+                </div>
+            </div>
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        标签
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        30
+                    </p>
+                </div>
+            </div>
+        </nav>
+        <div class="level">
+            <a class="level-item button is-link is-rounded" href="https://github.com/TrainooZhou">
+                关注我</a>
+        </div>
+        
+        
+        <div class="level is-mobile">
+            
+            <a class="level-item button is-white is-marginless" target="_blank" title="Github" href="http://github.com/ppoffice">
+                
+                <i class="fab fa-github"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank" title="Facebook" href="http://facebook.com">
+                
+                <i class="fab fa-facebook"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank" title="Twitter" href="http://twitter.com">
+                
+                <i class="fab fa-twitter"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank" title="Dribbble" href="http://dribbble.com">
+                
+                <i class="fab fa-dribbble"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank" title="RSS" href="/atom.xml">
+                
+                <i class="fas fa-rss"></i>
+                
+            </a>
+            
+        </div>
+        
+
+        <script src="/js/profile.js"></script>
+    </div>
+</div>
+    
+        
+    
+        
+
+<div class="card widget">
+	<div>
+	<link rel="stylesheet" href="/css/APlayer.min.css">
+	<div id="aplayer" style="margin: 0 auto;"></div>
+	<script src="/js/APlayer.min.js"></script>
+	<script src="/js/music.js"></script>
+</div>
+    <div class="card-content">
+        <div class="menu">
+        <h3 class="menu-label">
+            链接
+        </h3>
+        <ul class="menu-list">
+        
+            <li>
+                <a class="level is-mobile" href="https://gitee.com/trainoo" target="_blank">
+                    <span class="level-left">
+                        <span class="level-item">码云</span>
+                    </span>
+                    <span class="level-right">
+                        <span class="level-item tag">gitee.com</span>
+                    </span>
+                </a>
+            </li>
+        
+            <li>
+                <a class="level is-mobile" href="http://www.cnblogs.com/Trainoo/" target="_blank">
+                    <span class="level-left">
+                        <span class="level-item">博客园</span>
+                    </span>
+                    <span class="level-right">
+                        <span class="level-item tag">www.cnblogs.com</span>
+                    </span>
+                </a>
+            </li>
+        
+            <li>
+                <a class="level is-mobile" href="https://trainoo.gitee.io/" target="_blank">
+                    <span class="level-left">
+                        <span class="level-item">Gitee主页</span>
+                    </span>
+                    <span class="level-right">
+                        <span class="level-item tag">trainoo.gitee.io</span>
+                    </span>
+                </a>
+            </li>
+        
+            <li>
+                <a class="level is-mobile" href="https://trainoozhou.github.io/" target="_blank">
+                    <span class="level-left">
+                        <span class="level-item">GitHub主页</span>
+                    </span>
+                    <span class="level-right">
+                        <span class="level-item tag">trainoozhou.github.io</span>
+                    </span>
+                </a>
+            </li>
+        
+        </ul>
+        </div>
+    </div>
+</div>
+
+
+    
+        
+<div class="card widget">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                分类
+            </h3>
+            <ul class="menu-list">
+            <li>
+        <a class="level is-marginless" href="/categories/相册/">
+            <span class="level-start">
+                <span class="level-item">相册</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">8</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/语言/">
+            <span class="level-start">
+                <span class="level-item">语言</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">17</span>
+            </span>
+        </a><ul><li>
+        <a class="level is-marginless" href="/categories/语言/java/">
+            <span class="level-start">
+                <span class="level-item">java</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">6</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/语言/python/">
+            <span class="level-start">
+                <span class="level-item">python</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">10</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/语言/shell/">
+            <span class="level-start">
+                <span class="level-item">shell</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">1</span>
+            </span>
+        </a></li></ul></li>
+            </ul>
+        </div>
+    </div>
+</div>
+    
+        
+<div class="card widget">
+    <div class="card-content">
+        <h3 class="menu-label">
+            标签云
+        </h3>
+        <a href="/tags/IDE/" style="font-size: 10px;">IDE</a> <a href="/tags/Jenkins/" style="font-size: 15px;">Jenkins</a> <a href="/tags/cmd/" style="font-size: 15px;">cmd</a> <a href="/tags/docker/" style="font-size: 13.33px;">docker</a> <a href="/tags/dubbo/" style="font-size: 10px;">dubbo</a> <a href="/tags/elasticsearch/" style="font-size: 11.67px;">elasticsearch</a> <a href="/tags/filebeat/" style="font-size: 10px;">filebeat</a> <a href="/tags/git/" style="font-size: 11.67px;">git</a> <a href="/tags/java/" style="font-size: 16.67px;">java</a> <a href="/tags/kafka/" style="font-size: 10px;">kafka</a> <a href="/tags/kibana/" style="font-size: 10px;">kibana</a> <a href="/tags/linux/" style="font-size: 16.67px;">linux</a> <a href="/tags/logstash/" style="font-size: 10px;">logstash</a> <a href="/tags/mysql/" style="font-size: 10px;">mysql</a> <a href="/tags/nginx/" style="font-size: 10px;">nginx</a> <a href="/tags/python/" style="font-size: 20px;">python</a> <a href="/tags/shell/" style="font-size: 10px;">shell</a> <a href="/tags/spring/" style="font-size: 10px;">spring</a> <a href="/tags/web/" style="font-size: 10px;">web</a> <a href="/tags/windows/" style="font-size: 10px;">windows</a> <a href="/tags/博客/" style="font-size: 13.33px;">博客</a> <a href="/tags/图集/" style="font-size: 18.33px;">图集</a> <a href="/tags/摘抄笔记/" style="font-size: 11.67px;">摘抄笔记</a> <a href="/tags/浏览器/" style="font-size: 10px;">浏览器</a> <a href="/tags/源码/" style="font-size: 11.67px;">源码</a> <a href="/tags/线程池/" style="font-size: 10px;">线程池</a> <a href="/tags/设计模式/" style="font-size: 11.67px;">设计模式</a> <a href="/tags/起航/" style="font-size: 10px;">起航</a> <a href="/tags/随笔/" style="font-size: 20px;">随笔</a> <a href="/tags/面试/" style="font-size: 10px;">面试</a>
+    </div>
+</div>
+
+    
+    
+        <div class="column-right-shadow is-hidden-widescreen ">
+        
+            
+<div class="card widget">
+    <div class="card-content">
+        <h3 class="menu-label">
+            最新文章
+        </h3>
+        
+        <article class="media">
+            
+            <a href="/2020/03/28/jvm-monitor-practice/" class="media-left">
+                <p class="image is-64x64">
+                    <img class="thumbnail" src="/picture/2020/20200328001.jpg" alt="JVM及Java监控原理与实践">
+                </p>
+            </a>
+            
+            <div class="media-content">
+                <div class="content">
+                    <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2020-03-28T07:33:00.000Z">2020-03-28</time></div>
+                    <a href="/2020/03/28/jvm-monitor-practice/" class="has-link-black-ter is-size-6">JVM及Java监控原理与实践</a>
+                    <p class="is-size-7 is-uppercase">
+                        
+                    </p>
+                </div>
+            </div>
+        </article>
+        
+        <article class="media">
+            
+            <a href="/2019/12/28/Jenkins-role-base-authorization-strategy-plugin/" class="media-left">
+                <p class="image is-64x64">
+                    <img class="thumbnail" src="/picture/2019/20191228003.png" alt="Jenkins的权限管理">
+                </p>
+            </a>
+            
+            <div class="media-content">
+                <div class="content">
+                    <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2019-12-28T08:11:00.000Z">2019-12-28</time></div>
+                    <a href="/2019/12/28/Jenkins-role-base-authorization-strategy-plugin/" class="has-link-black-ter is-size-6">Jenkins的权限管理</a>
+                    <p class="is-size-7 is-uppercase">
+                        
+                    </p>
+                </div>
+            </div>
+        </article>
+        
+        <article class="media">
+            
+            <a href="/2019/12/28/Jenkins-startup-error/" class="media-left">
+                <p class="image is-64x64">
+                    <img class="thumbnail" src="/picture/2019/20191228001.png" alt="Jenkins启动报错解决">
+                </p>
+            </a>
+            
+            <div class="media-content">
+                <div class="content">
+                    <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2019-12-28T07:31:00.000Z">2019-12-28</time></div>
+                    <a href="/2019/12/28/Jenkins-startup-error/" class="has-link-black-ter is-size-6">Jenkins启动报错解决</a>
+                    <p class="is-size-7 is-uppercase">
+                        
+                    </p>
+                </div>
+            </div>
+        </article>
+        
+        <article class="media">
+            
+            <a href="/2019/12/18/springmvc-to-springboot-web/" class="media-left">
+                <p class="image is-64x64">
+                    <img class="thumbnail" src="/picture/2019/20191218001.png" alt="SpringMvc项目改造成springboot+web项目踩坑指南">
+                </p>
+            </a>
+            
+            <div class="media-content">
+                <div class="content">
+                    <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2019-12-18T06:11:00.000Z">2019-12-18</time></div>
+                    <a href="/2019/12/18/springmvc-to-springboot-web/" class="has-link-black-ter is-size-6">SpringMvc项目改造成springboot+web项目踩坑指南</a>
+                    <p class="is-size-7 is-uppercase">
+                        
+                    </p>
+                </div>
+            </div>
+        </article>
+        
+        <article class="media">
+            
+            <a href="/2019/11/26/solve-es-startup-error/" class="media-left">
+                <p class="image is-64x64">
+                    <img class="thumbnail" src="/picture/2019/20191126001.png" alt="Elasticsearch启动异常处理">
+                </p>
+            </a>
+            
+            <div class="media-content">
+                <div class="content">
+                    <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2019-11-26T11:40:00.000Z">2019-11-26</time></div>
+                    <a href="/2019/11/26/solve-es-startup-error/" class="has-link-black-ter is-size-6">Elasticsearch启动异常处理</a>
+                    <p class="is-size-7 is-uppercase">
+                        
+                    </p>
+                </div>
+            </div>
+        </article>
+        
+    </div>
+</div>
+
+        
+            <div class="card widget">
+    <div class="card-content">
+        <div class="menu">
+        <h3 class="menu-label">
+            归档
+        </h3>
+        <ul class="menu-list">
+        
+        <li>
+            <a class="level is-marginless" href="/archives/2020/03/">
+                <span class="level-start">
+                    <span class="level-item">三月 2020</span>
+                </span>
+                <span class="level-end">
+                    <span class="level-item tag">1</span>
+                </span>
+            </a>
+        </li>
+        
+        <li>
+            <a class="level is-marginless" href="/archives/2019/12/">
+                <span class="level-start">
+                    <span class="level-item">十二月 2019</span>
+                </span>
+                <span class="level-end">
+                    <span class="level-item tag">3</span>
+                </span>
+            </a>
+        </li>
+        
+        <li>
+            <a class="level is-marginless" href="/archives/2019/11/">
+                <span class="level-start">
+                    <span class="level-item">十一月 2019</span>
+                </span>
+                <span class="level-end">
+                    <span class="level-item tag">1</span>
+                </span>
+            </a>
+        </li>
+        
+        <li>
+            <a class="level is-marginless" href="/archives/2019/10/">
+                <span class="level-start">
+                    <span class="level-item">十月 2019</span>
+                </span>
+                <span class="level-end">
+                    <span class="level-item tag">6</span>
+                </span>
+            </a>
+        </li>
+        
+        <li>
+            <a class="level is-marginless" href="/archives/2019/09/">
+                <span class="level-start">
+                    <span class="level-item">九月 2019</span>
+                </span>
+                <span class="level-end">
+                    <span class="level-item tag">2</span>
+                </span>
+            </a>
+        </li>
+        
+        <li>
+            <a class="level is-marginless" href="/archives/2019/07/">
+                <span class="level-start">
+                    <span class="level-item">七月 2019</span>
+                </span>
+                <span class="level-end">
+                    <span class="level-item tag">1</span>
+                </span>
+            </a>
+        </li>
+        
+        <li>
+            <a class="level is-marginless" href="/archives/2019/06/">
+                <span class="level-start">
+                    <span class="level-item">六月 2019</span>
+                </span>
+                <span class="level-end">
+                    <span class="level-item tag">2</span>
+                </span>
+            </a>
+        </li>
+        
+        <li>
+            <a class="level is-marginless" href="/archives/2019/05/">
+                <span class="level-start">
+                    <span class="level-item">五月 2019</span>
+                </span>
+                <span class="level-end">
+                    <span class="level-item tag">1</span>
+                </span>
+            </a>
+        </li>
+        
+        <li>
+            <a class="level is-marginless" href="/archives/2018/12/">
+                <span class="level-start">
+                    <span class="level-item">十二月 2018</span>
+                </span>
+                <span class="level-end">
+                    <span class="level-item tag">2</span>
+                </span>
+            </a>
+        </li>
+        
+        <li>
+            <a class="level is-marginless" href="/archives/2018/11/">
+                <span class="level-start">
+                    <span class="level-item">十一月 2018</span>
+                </span>
+                <span class="level-end">
+                    <span class="level-item tag">2</span>
+                </span>
+            </a>
+        </li>
+        
+        <li>
+            <a class="level is-marginless" href="/archives/2018/09/">
+                <span class="level-start">
+                    <span class="level-item">九月 2018</span>
+                </span>
+                <span class="level-end">
+                    <span class="level-item tag">4</span>
+                </span>
+            </a>
+        </li>
+        
+        <li>
+            <a class="level is-marginless" href="/archives/2018/06/">
+                <span class="level-start">
+                    <span class="level-item">六月 2018</span>
+                </span>
+                <span class="level-end">
+                    <span class="level-item tag">17</span>
+                </span>
+            </a>
+        </li>
+        
+        <li>
+            <a class="level is-marginless" href="/archives/2018/05/">
+                <span class="level-start">
+                    <span class="level-item">五月 2018</span>
+                </span>
+                <span class="level-end">
+                    <span class="level-item tag">2</span>
+                </span>
+            </a>
+        </li>
+        
+        <li>
+            <a class="level is-marginless" href="/archives/2018/04/">
+                <span class="level-start">
+                    <span class="level-item">四月 2018</span>
+                </span>
+                <span class="level-end">
+                    <span class="level-item tag">1</span>
+                </span>
+            </a>
+        </li>
+        
+        <li>
+            <a class="level is-marginless" href="/archives/2018/01/">
+                <span class="level-start">
+                    <span class="level-item">一月 2018</span>
+                </span>
+                <span class="level-end">
+                    <span class="level-item tag">1</span>
+                </span>
+            </a>
+        </li>
+        
+        <li>
+            <a class="level is-marginless" href="/archives/2017/12/">
+                <span class="level-start">
+                    <span class="level-item">十二月 2017</span>
+                </span>
+                <span class="level-end">
+                    <span class="level-item tag">5</span>
+                </span>
+            </a>
+        </li>
+        
+        </ul>
+        </div>
+    </div>
+</div>
+        
+            <div class="card widget">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                标签
+            </h3>
+            <div class="field is-grouped is-grouped-multiline">
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/IDE/">
+                        <span class="tag">IDE</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/Jenkins/">
+                        <span class="tag">Jenkins</span>
+                        <span class="tag is-grey">4</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/cmd/">
+                        <span class="tag">cmd</span>
+                        <span class="tag is-grey">4</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/docker/">
+                        <span class="tag">docker</span>
+                        <span class="tag is-grey">3</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/dubbo/">
+                        <span class="tag">dubbo</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/elasticsearch/">
+                        <span class="tag">elasticsearch</span>
+                        <span class="tag is-grey">2</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/filebeat/">
+                        <span class="tag">filebeat</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/git/">
+                        <span class="tag">git</span>
+                        <span class="tag is-grey">2</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/java/">
+                        <span class="tag">java</span>
+                        <span class="tag is-grey">7</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/kafka/">
+                        <span class="tag">kafka</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/kibana/">
+                        <span class="tag">kibana</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/linux/">
+                        <span class="tag">linux</span>
+                        <span class="tag is-grey">7</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/logstash/">
+                        <span class="tag">logstash</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/mysql/">
+                        <span class="tag">mysql</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/nginx/">
+                        <span class="tag">nginx</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/python/">
+                        <span class="tag">python</span>
+                        <span class="tag is-grey">11</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/shell/">
+                        <span class="tag">shell</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/spring/">
+                        <span class="tag">spring</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/web/">
+                        <span class="tag">web</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/windows/">
+                        <span class="tag">windows</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/博客/">
+                        <span class="tag">博客</span>
+                        <span class="tag is-grey">3</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/图集/">
+                        <span class="tag">图集</span>
+                        <span class="tag is-grey">8</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/摘抄笔记/">
+                        <span class="tag">摘抄笔记</span>
+                        <span class="tag is-grey">2</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/浏览器/">
+                        <span class="tag">浏览器</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/源码/">
+                        <span class="tag">源码</span>
+                        <span class="tag is-grey">2</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/线程池/">
+                        <span class="tag">线程池</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/设计模式/">
+                        <span class="tag">设计模式</span>
+                        <span class="tag is-grey">2</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/起航/">
+                        <span class="tag">起航</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/随笔/">
+                        <span class="tag">随笔</span>
+                        <span class="tag is-grey">11</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/面试/">
+                        <span class="tag">面试</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+</div>
+        
+        </div>
+    
+</div>
+
+                
+
+
+            </div>
+        </div>
+    </section>
+    <footer class="footer">
+    <div class="container">
+        <div class="level">
+            <div class="level-start has-text-centered-mobile">
+                <a class="footer-logo is-block has-mb-6" href="/">
+                
+                    <img src="/img/logo.png" alt="ELK安装以及配置" height="28">
+                
+                </a>
+                <p class="is-size-7">
+                &copy; 2020 Trainoo&nbsp;
+                Powered by <a href="http://hexo.io/" target="_blank">Hexo</a> Theme base on <a href="http://github.com/ppoffice/hexo-theme-icarus" target="_blank">Icarus</a>
+                </p>
+            </div>
+            <div class="level-end">
+            
+                <div class="field has-addons is-flex-center-mobile has-mt-5-mobile is-flex-wrap is-flex-middle">
+                
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Creative Commons" href="https://creativecommons.org/">
+                        
+                        <i class="fab fa-creative-commons"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/">
+                        
+                        <i class="fab fa-creative-commons-by"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Follow me on GitHub" href="https://github.com/trainoozhou">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                </p>
+                
+                </div>
+            
+			
+            </div>
+			<div>
+			<p class="is-size-7" style="text-align: center">
+				<span id="timeDate">Loading date...</span><span id="times">Loading minutes...</span>
+				<script>
+					var now = new Date(); 
+					function createtime() { 
+						var grt= new Date("12/14/2017 12:00:00"); //此处修改你的建站时间或者网站上线时间
+						now.setTime(now.getTime()+250); 
+						days = (now - grt ) / 1000 / 60 / 60 / 24; dnum = Math.floor(days); 
+						hours = (now - grt ) / 1000 / 60 / 60 - (24 * dnum); hnum = Math.floor(hours); 
+						if(String(hnum).length ==1 ){hnum = "0" + hnum;} minutes = (now - grt ) / 1000 /60 - (24 * 60 * dnum) - (60 * hnum); 
+						mnum = Math.floor(minutes); if(String(mnum).length ==1 ){mnum = "0" + mnum;} 
+						seconds = (now - grt ) / 1000 - (24 * 60 * 60 * dnum) - (60 * 60 * hnum) - (60 * mnum); 
+						snum = Math.round(seconds); if(String(snum).length ==1 ){snum = "0" + snum;} 
+						document.getElementById("timeDate").innerHTML = "&#9829; Security Run For "+dnum+" Days "; 
+						document.getElementById("times").innerHTML = hnum + " : " + mnum + " : " + snum + " &#9829;"; 
+					} 
+					setInterval("createtime()",250);
+				</script>
+				
+				<br>
+				<span id="busuanzi_container_site_uv">
+				共<span id="busuanzi_value_site_uv">0</span>个访客
+				</span>
+				
+			</p>
+			</div>
+        </div>
+    </div>
+</footer>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script>
+<script>moment.locale("zh-CN");</script>
+
+
+    
+    
+    
+    <script src="/js/animation.js"></script>
+    
+
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/lightgallery@1.6.8/dist/js/lightgallery.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/js/jquery.justifiedGallery.min.js" defer></script>
+    <script src="/js/gallery.js" defer></script>
+    
+
+    
+    
+
+<div id="outdated">
+    <h6>Your browser is out-of-date!</h6>
+    <p>Update your browser to view this website correctly. <a id="btnUpdateBrowser" href="http://outdatedbrowser.com/">Update
+            my browser now </a></p>
+    <p class="last"><a href="#" id="btnCloseUpdateBrowser" title="Close">&times;</a></p>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.js" defer></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        outdatedBrowser({
+            bgColor: '#f25648',
+            color: '#ffffff',
+            lowerThan: 'flex'
+        });
+    });
+</script>
+
+
+    
+    
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/unpacked/MathJax.js?config=TeX-MML-AM_CHTML" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    MathJax.Hub.Config({
+        'HTML-CSS': {
+            matchFontHeight: false
+        },
+        SVG: {
+            matchFontHeight: false
+        },
+        CommonHTML: {
+            matchFontHeight: false
+        },
+        tex2jax: {
+            inlineMath: [
+                ['$','$'],
+                ['\\(','\\)']
+            ]
+        }
+    });
+});
+</script>
+
+    
+    
+
+<a id="back-to-top" title="回到顶端" href="javascript:;">
+    <i class="fas fa-chevron-up"></i>
+</a>
+<script src="/js/back-to-top.js" defer></script>
+
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script>
+    <script src="/js/clipboard.js" defer></script>
+    
+
+    
+    
+    
+
+    
+
+
+<script src="/js/main.js" defer></script>
+
+    
+    <div class="searchbox ins-search">
+    <div class="searchbox-container ins-search-container">
+        <div class="searchbox-input-wrapper">
+            <input type="text" class="searchbox-input ins-search-input" placeholder="想要查找什么...">
+            <span class="searchbox-close ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="searchbox-result-wrapper ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+    (function (window) {
+        var INSIGHT_CONFIG = {
+            TRANSLATION: {
+                POSTS: '文章',
+                PAGES: '页面',
+                CATEGORIES: '分类',
+                TAGS: '标签',
+                UNTITLED: '(无标题)',
+            },
+            CONTENT_URL: '/content.json',
+        };
+        window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+    })(window);
+</script>
+<script src="/js/insight.js" defer></script>
+<link rel="stylesheet" href="/css/search.css">
+<link rel="stylesheet" href="/css/insight.css">
+    
+
+    <!-- 主题设置 -->
+    <script type="text/javascript" src="/js/theme-setting.js" }=""></script>
+    <script type="text/javascript" src="/js/universe.js"></script>
+
+	<!-- 鼠标点击特效 -->
+	<script type="text/javascript">
+      var windowWidth = $(window).width();
+      if (windowWidth > 480) {
+		// 烟花特效
+		document.write('<canvas class="fireworks" width="100%" height="100%" style="position: fixed; left: 0; top: 0; z-index: 99999999; pointer-events: none;"></canvas>');
+        document.write('<script type="text/javascript" src="/js/anime.min.js"><\/script>');
+		document.write('<script type="text/javascript" src="/js/fireworks.js"><\/script>');
+		// 爱心
+		document.write('<script type="text/javascript" src="/js/click.js"><\/script>');
+      }
+    </script>
+
+	<!-- 处理文章链接地址 -->
+	<script type="text/javascript">
+		window.onload=function (){
+			var curWwwPath=window.document.location.href;
+			var pathName=window.document.location.pathname;
+			var pos=curWwwPath.indexOf(pathName);
+			var url=curWwwPath.substring(0, pos);
+			var title = $('.artTitle').html();
+			$('.artTitle').html(url + "/" + title);
+		}
+	</script>
+</body>
+</html>

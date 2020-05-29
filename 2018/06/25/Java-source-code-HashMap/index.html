@@ -1,0 +1,1310 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+<title>Java源码分析之HashMap - Trainoo的博客</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+    <meta name="description" content="之前整理了单例模式的源码分析接下来，整理一下HashMap的源码分析">
+<meta name="keywords" content="java,源码">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java源码分析之HashMap">
+<meta property="og:url" content="http://yoursite.com/2018/06/25/Java-source-code-HashMap/index.html">
+<meta property="og:site_name" content="Trainoo的博客">
+<meta property="og:description" content="之前整理了单例模式的源码分析接下来，整理一下HashMap的源码分析">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-05-20T03:24:30.487Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Java源码分析之HashMap">
+<meta name="twitter:description" content="之前整理了单例模式的源码分析接下来，整理一下HashMap的源码分析">
+
+
+
+<link rel="alternative" href="/atom.xml" title="Java源码分析之HashMap" type="application/atom+xml">
+
+
+
+<link rel="icon" href="/img/favicon.png">
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.7.2/css/bulma.css">
+<link rel="stylesheet" href="/./css/all.css">
+<link rel="stylesheet" href="/./css/fonts.googleapis.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/atom-one-light.css">
+
+
+    
+    
+    
+    <style>body>.footer,body>.navbar,body>.section{opacity:0}</style>
+    
+
+    
+    
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.6.8/dist/css/lightgallery.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/css/justifiedGallery.min.css">
+    
+
+    
+    
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.css">
+
+
+    
+    
+    
+    
+
+<link rel="stylesheet" href="/css/back-to-top.css">
+
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+<link rel="stylesheet" href="/css/progressbar.css">
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+
+    
+    
+    
+
+    
+    
+    
+        <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    
+
+    
+
+
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="is-3-column">
+    <nav class="navbar navbar-main">
+    <div class="container">
+        <div class="navbar-brand is-flex-center">
+            <a class="navbar-item navbar-logo" href="/">
+            
+                <img src="/img/logo.png" alt="Java源码分析之HashMap" height="28">
+            
+            </a>
+        </div>
+        <div class="navbar-menu">
+            
+            <div class="navbar-start">
+                
+                <a class="navbar-item" href="/">主页</a>
+                
+                <a class="navbar-item" href="/archives">时间轴</a>
+                
+                <a class="navbar-item" href="/categories/相册/">相册</a>
+                
+                <a class="navbar-item" href="/about">关于</a>
+                
+            </div>
+            
+            <div class="navbar-end">
+                
+                    
+                    
+                    <a class="navbar-item" target="_blank" title="My GitHub" href="https://github.com/trainoozhou">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                    
+                
+                
+                
+                <a class="navbar-item search" title="搜索" href="javascript:;">
+                    <i class="fas fa-search"></i>
+                </a>
+                
+                <a class="navbar-item" id="night-nav" title="Night Mode" href="javascript:;">
+                    <i class="fas fa-moon" id="night-icon"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</nav>
+    
+
+	
+    <canvas id="universe"></canvas>
+    <section class="section">
+        <div class="container">
+            <div class="columns">
+                <div class="column is-6-tablet is-6-desktop is-9-widescreen has-order-2 column-main"><div class="card">
+    
+    <div class="card-image">
+        <span class="image is-7by1">
+            <img class="thumbnail" src="/picture/2018/20180625003.png" alt="Java源码分析之HashMap">
+        </span>
+    </div>
+    
+    <div class="card-content article ">
+        
+        <div class="level article-meta is-size-7 is-uppercase is-mobile is-overflow-x-auto">
+            <div class="level-left">
+                <time class="level-item has-text-grey" datetime="2018-06-25T15:00:00.000Z">2018-06-25</time>
+                
+                <div class="level-item">
+                <a class="has-link-grey -link" href="/categories/语言/">语言</a>&nbsp;/&nbsp;<a class="has-link-grey -link" href="/categories/语言/java/">java</a>
+                </div>
+                
+                
+                <span class="level-item has-text-grey">
+                    
+                    
+                    13 分钟 读完 (大约 2006 个字)
+                </span>
+                
+                
+                <span class="level-item has-text-grey" id="busuanzi_container_page_pv">
+                    <i class="far fa-eye"></i>
+                    <span id="busuanzi_value_page_pv">0</span>次访问
+                </span>
+                
+            </div>
+        </div>
+        
+        <h1 class="title is-size-3 is-size-4-mobile has-text-weight-normal">
+            
+                Java源码分析之HashMap
+            
+        </h1>
+        <div class="content">
+            <p>之前整理了单例模式的源码分析<br>接下来，整理一下HashMap的源码分析</p>
+<a id="more"></a>
+<h6 id="首先理解概念："><a href="#首先理解概念：" class="headerlink" title="首先理解概念："></a>首先理解概念：</h6><figure class="highlight markdown hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-bullet">1. </span>数组</span><br><span class="line">数组存储区间是连续的，占用内存严重，故空间复杂的很大。</span><br><span class="line">但数组的二分查找时间复杂度小，为O(1)；</span><br><span class="line">数组的特点是：寻址容易，插入和删除困难；</span><br><span class="line"></span><br><span class="line"><span class="hljs-bullet">2. </span>链表</span><br><span class="line">链表存储区间离散，占用内存比较宽松，</span><br><span class="line">故空间复杂度很小，但时间复杂度很大，达O（N）。</span><br><span class="line">链表的特点是：寻址困难，插入和删除容易。</span><br><span class="line"></span><br><span class="line"><span class="hljs-bullet">3. </span>哈希表</span><br><span class="line">哈希表（(Hash table）既满足了数据的查找方便，</span><br><span class="line">同时不占用太多的内容空间，使用也十分方便。</span><br><span class="line">哈希表有多种不同的实现方法，最常用的一种方法—— 拉链法，我们可以理解为“链表的数组” </span><br><span class="line">哈希表是由 <span class="hljs-strong">**数组+链表**</span> 组成的</span><br></pre></td></tr></table></figure>
+<figure class="highlight java hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">HashMap是数组+链表+红黑树（JDK1.8增加了红黑树部分）实现的</span><br><span class="line"></span><br><span class="line">HashMap其实也是一个线性的数组实现的,所以可以理解为其存储数据的容器就是一个线性数组。</span><br><span class="line"></span><br><span class="line">首先HashMap里面实现一个静态内部类Entry(<span class="hljs-number">1.8</span>里面是是Node)，其重要的属性有 key , value, next</span><br><span class="line">    <span class="hljs-keyword">static</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Entry</span>&lt;<span class="hljs-title">K</span>,<span class="hljs-title">V</span>&gt; <span class="hljs-keyword">implements</span> <span class="hljs-title">Map</span>.<span class="hljs-title">Entry</span>&lt;<span class="hljs-title">K</span>,<span class="hljs-title">V</span>&gt; </span>&#123;</span><br><span class="line">        <span class="hljs-keyword">final</span> K key;</span><br><span class="line">        V value;</span><br><span class="line">        Entry&lt;K,V&gt; next;</span><br><span class="line">        ......</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="hljs-comment">// jdk1.8实现</span></span><br><span class="line">    <span class="hljs-keyword">static</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Node</span>&lt;<span class="hljs-title">K</span>,<span class="hljs-title">V</span>&gt; <span class="hljs-keyword">implements</span> <span class="hljs-title">Map</span>.<span class="hljs-title">Entry</span>&lt;<span class="hljs-title">K</span>,<span class="hljs-title">V</span>&gt; </span>&#123;</span><br><span class="line">        <span class="hljs-keyword">final</span> <span class="hljs-keyword">int</span> hash;    <span class="hljs-comment">//用来定位数组索引位置</span></span><br><span class="line">        <span class="hljs-keyword">final</span> K key;</span><br><span class="line">        V value;</span><br><span class="line">        Node&lt;K,V&gt; next;   <span class="hljs-comment">//链表的下一个node</span></span><br><span class="line">    </span><br><span class="line">        Node(<span class="hljs-keyword">int</span> hash, K key, V value, Node&lt;K,V&gt; next) &#123; ... &#125;</span><br><span class="line">        <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">final</span> K <span class="hljs-title">getKey</span><span class="hljs-params">()</span></span>&#123; ... &#125;</span><br><span class="line">        <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">final</span> V <span class="hljs-title">getValue</span><span class="hljs-params">()</span> </span>&#123; ... &#125;</span><br><span class="line">        <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">final</span> String <span class="hljs-title">toString</span><span class="hljs-params">()</span> </span>&#123; ... &#125;</span><br><span class="line">        <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">int</span> <span class="hljs-title">hashCode</span><span class="hljs-params">()</span> </span>&#123; ... &#125;</span><br><span class="line">        <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">final</span> V <span class="hljs-title">setValue</span><span class="hljs-params">(V newValue)</span> </span>&#123; ... &#125;</span><br><span class="line">        <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">boolean</span> <span class="hljs-title">equals</span><span class="hljs-params">(Object o)</span> </span>&#123; ... &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">说到HashMap的基础就是一个线性数组，这个数组就是Entry[]，Map里面的内容都保存在Entry[]里面。</span><br><span class="line">    <span class="hljs-comment">/**</span></span><br><span class="line"><span class="hljs-comment">     * The table, resized as necessary. Length MUST Always be a power of two.</span></span><br><span class="line"><span class="hljs-comment">     */</span></span><br><span class="line">    <span class="hljs-keyword">transient</span> Entry[] table;</span><br></pre></td></tr></table></figure>
+<figure class="highlight processing hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">HashMap</span>：</span><br><span class="line">它根据键的hashCode值存储数据，大多数情况下可以直接定位到它的值，因而具有很快的访问速度。</span><br><span class="line"><span class="hljs-keyword">HashMap</span>最多只允许一条记录的键为<span class="hljs-keyword">null</span>，允许多条记录的值为<span class="hljs-keyword">null</span>。非线程安全。</span><br><span class="line">如果需要满足线程安全，可以用 Collections的synchronizedMap方法使<span class="hljs-keyword">HashMap</span>具有线程安全的能力，或者使用ConcurrentHashMap</span><br><span class="line"></span><br><span class="line">Hashtable：</span><br><span class="line">Hashtable是遗留类，很多映射的常用功能与<span class="hljs-keyword">HashMap</span>类似，不同的是它承自Dictionary类。线程安全。并发性不如ConcurrentHashMap，因为ConcurrentHashMap引入了分段锁。</span><br><span class="line"></span><br><span class="line">LinkedHashMap：</span><br><span class="line">LinkedHashMap是<span class="hljs-keyword">HashMap</span>的一个子类，保存了记录的插入顺序，在用Iterator遍历LinkedHashMap时，先得到的记录肯定是先插入的，也可以在构造时带参数，按照访问次序排序。</span><br><span class="line"></span><br><span class="line">TreeMap：</span><br><span class="line">TreeMap实现SortedMap接口，能够把它保存的记录根据键排序，默认是按键值的升序排序，也可以指定排序的比较器，当用Iterator遍历TreeMap时，得到的记录是排过序的。</span><br><span class="line">在使用TreeMap时，<span class="hljs-built_in">key</span>必须实现Comparable接口或者在构造TreeMap传入自定义的Comparator，否则会在运行时抛出java.lang.ClassCastException类型的异常。</span><br></pre></td></tr></table></figure>
+<h6 id="初始大小、增长"><a href="#初始大小、增长" class="headerlink" title="初始大小、增长"></a>初始大小、增长</h6><figure class="highlight processing hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-number">1.</span> hashMap的大小始终是<span class="hljs-number">2</span>的n次幂</span><br><span class="line"><span class="hljs-number">2.</span> 每扩充一次，<span class="hljs-keyword">HashMap</span> 的容量就增大一倍。</span><br><span class="line"><span class="hljs-number">3.</span> hashMap的构造方法;</span><br><span class="line">    * <span class="hljs-keyword">HashMap</span>()：构建一个初始容量为 <span class="hljs-number">16</span>，负载因子为 <span class="hljs-number">0.75</span> 的 <span class="hljs-keyword">HashMap</span>。 </span><br><span class="line">    * <span class="hljs-keyword">HashMap</span>(<span class="hljs-built_in">int</span> initialCapacity)：构建一个初始容量为 initialCapacity，负载因子为 <span class="hljs-number">0.75</span> 的 <span class="hljs-keyword">HashMap</span>。 </span><br><span class="line">    * <span class="hljs-keyword">HashMap</span>(<span class="hljs-built_in">int</span> initialCapacity, <span class="hljs-built_in">float</span> loadFactor)：以指定初始容量、指定的负载因子创建一个 <span class="hljs-keyword">HashMap</span>。</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="hljs-comment">// 以指定初始化容量、负载因子创建 HashMap   </span></span><br><span class="line"><span class="hljs-keyword">public</span> <span class="hljs-keyword">HashMap</span>(<span class="hljs-built_in">int</span> initialCapacity, <span class="hljs-built_in">float</span> loadFactor) &#123;</span><br><span class="line">    <span class="hljs-keyword">if</span> (initialCapacity &lt; <span class="hljs-number">0</span>)</span><br><span class="line">        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> IllegalArgumentException(<span class="hljs-string">"Illegal initial capacity: "</span> +</span><br><span class="line">                                           initialCapacity);</span><br><span class="line">    <span class="hljs-keyword">if</span> (initialCapacity &gt; MAXIMUM_CAPACITY)</span><br><span class="line">        initialCapacity = MAXIMUM_CAPACITY;</span><br><span class="line">    <span class="hljs-keyword">if</span> (loadFactor &lt;= <span class="hljs-number">0</span> || Float.isNaN(loadFactor))</span><br><span class="line">        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> IllegalArgumentException(<span class="hljs-string">"Illegal load factor: "</span> +</span><br><span class="line">                                           loadFactor);</span><br><span class="line"></span><br><span class="line">    <span class="hljs-keyword">this</span>.loadFactor = loadFactor;</span><br><span class="line">    threshold = initialCapacity;</span><br><span class="line">    init();</span><br><span class="line">&#125;</span><br><span class="line">注意：此处用的java1<span class="hljs-number">.7</span>源码，这里并没有在构造函数里面就把容量扩展到</span><br><span class="line">比initialCapacity小的，最小的<span class="hljs-number">2</span>的n次方值。</span><br><span class="line">而是在put第一个元素的时候才执行这个操作,保证上述条件<span class="hljs-number">1</span></span><br><span class="line">    <span class="hljs-keyword">public</span> V put(K <span class="hljs-built_in">key</span>, V value) &#123;</span><br><span class="line">        <span class="hljs-keyword">if</span> (table == EMPTY_TABLE) &#123;</span><br><span class="line">            inflateTable(threshold); <span class="hljs-comment">//扩容到最2的n方</span></span><br><span class="line">        &#125;</span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> inflateTable(<span class="hljs-built_in">int</span> toSize) &#123;</span><br><span class="line">        <span class="hljs-comment">// Find a power of 2 &gt;= toSize</span></span><br><span class="line">        <span class="hljs-built_in">int</span> capacity = roundUpToPowerOf2(toSize);</span><br><span class="line"></span><br><span class="line">        threshold = (<span class="hljs-built_in">int</span>) Math.<span class="hljs-built_in">min</span>(capacity * loadFactor, MAXIMUM_CAPACITY + <span class="hljs-number">1</span>);</span><br><span class="line">        table = <span class="hljs-keyword">new</span> Entry[capacity];</span><br><span class="line">        initHashSeedAsNeeded(capacity);</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line">增长：</span><br><span class="line"><span class="hljs-comment">// 将 key、value 添加到 i 索引处  </span></span><br><span class="line">addEntry(hash, <span class="hljs-built_in">key</span>, value, i); </span><br><span class="line"></span><br><span class="line"><span class="hljs-keyword">void</span> addEntry(<span class="hljs-built_in">int</span> hash, K <span class="hljs-built_in">key</span>, V value, <span class="hljs-built_in">int</span> bucketIndex) &#123;</span><br><span class="line">    <span class="hljs-comment">// 如果大小超过临界值，容量翻倍</span></span><br><span class="line">    <span class="hljs-keyword">if</span> ((<span class="hljs-built_in">size</span> &gt;= threshold) &amp;&amp; (<span class="hljs-keyword">null</span> != table[bucketIndex])) &#123;</span><br><span class="line">        resize(<span class="hljs-number">2</span> * table.length);</span><br><span class="line">        hash = (<span class="hljs-keyword">null</span> != <span class="hljs-built_in">key</span>) ? hash(<span class="hljs-built_in">key</span>) : <span class="hljs-number">0</span>;</span><br><span class="line">        bucketIndex = indexFor(hash, table.length);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    createEntry(hash, <span class="hljs-built_in">key</span>, value, bucketIndex);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="hljs-keyword">void</span> createEntry(<span class="hljs-built_in">int</span> hash, K <span class="hljs-built_in">key</span>, V value, <span class="hljs-built_in">int</span> bucketIndex) &#123;</span><br><span class="line">    Entry&lt;K,V&gt; e = table[bucketIndex];</span><br><span class="line">    table[bucketIndex] = <span class="hljs-keyword">new</span> Entry&lt;&gt;(hash, <span class="hljs-built_in">key</span>, value, e);</span><br><span class="line">    <span class="hljs-built_in">size</span>++;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h6 id="Put方法"><a href="#Put方法" class="headerlink" title="Put方法"></a>Put方法</h6><figure class="highlight processing hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br></pre></td><td class="code"><pre><span class="line">当向 <span class="hljs-keyword">HashMap</span> 中添加 <span class="hljs-built_in">key</span>-value 对，由其 <span class="hljs-built_in">key</span> 的 hashCode() 返回值决定该 <span class="hljs-built_in">key</span>-value 对（就是 Entry 对象）的存储位置。</span><br><span class="line">当两个 Entry 对象的 <span class="hljs-built_in">key</span> 的 hashCode() 返回值相同时，</span><br><span class="line">将由 <span class="hljs-built_in">key</span> 通过 eqauls() 比较值决定是采用覆盖行为（返回 <span class="hljs-keyword">true</span>），还是产生 Entry 链（返回 <span class="hljs-keyword">false</span>）。 </span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="hljs-keyword">public</span> V put(K <span class="hljs-built_in">key</span>, V value)   </span><br><span class="line">&#123;</span><br><span class="line">    <span class="hljs-keyword">if</span> (table == EMPTY_TABLE) &#123; <span class="hljs-comment">//第一次添加，把大小扩展到2的幂放</span></span><br><span class="line">        inflateTable(threshold);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="hljs-comment">// 如果 key 为 null，调用 putForNullKey 方法进行处理  </span></span><br><span class="line">    <span class="hljs-keyword">if</span> (<span class="hljs-built_in">key</span> == <span class="hljs-keyword">null</span>)   </span><br><span class="line">     <span class="hljs-keyword">return</span> putForNullKey(value);    <span class="hljs-comment">//null总是放在数组的第一个链表中</span></span><br><span class="line">    <span class="hljs-comment">// 根据 key 的 keyCode 计算 Hash 值  </span></span><br><span class="line">    <span class="hljs-built_in">int</span> hash = hash(<span class="hljs-built_in">key</span>.hashCode());   </span><br><span class="line">    <span class="hljs-comment">// 搜索指定 hash 值在对应 table 中的索引  </span></span><br><span class="line">     <span class="hljs-built_in">int</span> i = indexFor(hash, table.length);  </span><br><span class="line">    <span class="hljs-comment">// //遍历链表 如果 i 索引处的 Entry 不为 null，通过循环不断遍历 e 元素的下一个元素  </span></span><br><span class="line">    <span class="hljs-keyword">for</span> (Entry&lt;K,V&gt; e = table[i]; e != <span class="hljs-keyword">null</span>; e = e.next)   </span><br><span class="line">    &#123;   </span><br><span class="line">     <span class="hljs-keyword">Object</span> k;   </span><br><span class="line">     <span class="hljs-comment">// 找到指定 key 与需要放入的 key 相等（hash 值相同  </span></span><br><span class="line">     <span class="hljs-comment">// 通过 equals 比较放回 true）  </span></span><br><span class="line">     <span class="hljs-keyword">if</span> (e.hash == hash &amp;&amp; ((k = e.<span class="hljs-built_in">key</span>) == <span class="hljs-built_in">key</span>   </span><br><span class="line">         || <span class="hljs-built_in">key</span>.equals(k)))   </span><br><span class="line">     &#123;   </span><br><span class="line">         V oldValue = e.value;   </span><br><span class="line">         e.value = value;   </span><br><span class="line">         e.recordAccess(<span class="hljs-keyword">this</span>);   </span><br><span class="line">         <span class="hljs-keyword">return</span> oldValue;   </span><br><span class="line">     &#125;   </span><br><span class="line">    &#125;   </span><br><span class="line">    <span class="hljs-comment">// 如果 i 索引处的 Entry 为 null，表明此处还没有 Entry   </span></span><br><span class="line">    modCount++;   </span><br><span class="line">    <span class="hljs-comment">// 将 key、value 添加到 i 索引处  </span></span><br><span class="line">    addEntry(hash, <span class="hljs-built_in">key</span>, value, i);   </span><br><span class="line">    <span class="hljs-keyword">return</span> <span class="hljs-keyword">null</span>;   </span><br><span class="line">&#125;   </span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="hljs-keyword">void</span> addEntry(<span class="hljs-built_in">int</span> hash, K <span class="hljs-built_in">key</span>, V value, <span class="hljs-built_in">int</span> bucketIndex) &#123;</span><br><span class="line">    Entry&lt;K,V&gt; e = table[bucketIndex];</span><br><span class="line">    table[bucketIndex] = <span class="hljs-keyword">new</span> Entry&lt;K,V&gt;(hash, <span class="hljs-built_in">key</span>, value, e); <span class="hljs-comment">//参数e, 是Entry.next</span></span><br><span class="line">    <span class="hljs-comment">//如果size超过threshold(临界值)，则扩充table大小。再散列</span></span><br><span class="line">    <span class="hljs-keyword">if</span> (<span class="hljs-built_in">size</span>++ &gt;= threshold)</span><br><span class="line">            resize(<span class="hljs-number">2</span> * table.length);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">当哈希表的容量超过默认容量时，必须调整table的大小。</span><br><span class="line">当容量已经达到最大可能值时，那么该方法就将容量调整到Integer.MAX_VALUE返回，</span><br><span class="line">这时，需要创建一张新表，将原表的映射到新表中。</span><br><span class="line"></span><br><span class="line"><span class="hljs-keyword">void</span> resize(<span class="hljs-built_in">int</span> newCapacity) &#123;</span><br><span class="line">    Entry[] oldTable = table;</span><br><span class="line">    <span class="hljs-built_in">int</span> oldCapacity = oldTable.length;</span><br><span class="line">    <span class="hljs-keyword">if</span> (oldCapacity == MAXIMUM_CAPACITY) &#123;</span><br><span class="line">        threshold = Integer.MAX_VALUE;</span><br><span class="line">        <span class="hljs-keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    Entry[] newTable = <span class="hljs-keyword">new</span> Entry[newCapacity];</span><br><span class="line">    transfer(newTable);</span><br><span class="line">    table = newTable;</span><br><span class="line">    threshold = (<span class="hljs-built_in">int</span>)(newCapacity * loadFactor);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="hljs-keyword">void</span> transfer(Entry[] newTable) &#123;</span><br><span class="line">    Entry[] src = table;</span><br><span class="line">    <span class="hljs-built_in">int</span> newCapacity = newTable.length;</span><br><span class="line">    <span class="hljs-keyword">for</span> (<span class="hljs-built_in">int</span> j = <span class="hljs-number">0</span>; j &lt; src.length; j++) &#123;</span><br><span class="line">        Entry&lt;K,V&gt; e = src[j];</span><br><span class="line">        <span class="hljs-keyword">if</span> (e != <span class="hljs-keyword">null</span>) &#123;</span><br><span class="line">            src[j] = <span class="hljs-keyword">null</span>;</span><br><span class="line">            do &#123;</span><br><span class="line">                Entry&lt;K,V&gt; next = e.next;</span><br><span class="line">                <span class="hljs-comment">//重新计算index</span></span><br><span class="line">                <span class="hljs-built_in">int</span> i = indexFor(e.hash, newCapacity);</span><br><span class="line">                e.next = newTable[i];</span><br><span class="line">                newTable[i] = e;</span><br><span class="line">                e = next;</span><br><span class="line">            &#125; <span class="hljs-keyword">while</span> (e != <span class="hljs-keyword">null</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h6 id="Get方法"><a href="#Get方法" class="headerlink" title="Get方法"></a>Get方法</h6><figure class="highlight cs hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-function"><span class="hljs-keyword">public</span> V <span class="hljs-title">get</span>(<span class="hljs-params">Object key</span>) </span>&#123;</span><br><span class="line">    <span class="hljs-keyword">if</span> (key == <span class="hljs-literal">null</span>)</span><br><span class="line">        <span class="hljs-keyword">return</span> getForNullKey();</span><br><span class="line">    <span class="hljs-keyword">int</span> hash = hash(key.hashCode());</span><br><span class="line">    <span class="hljs-comment">//先定位到数组元素，再遍历该元素处的链表</span></span><br><span class="line">    <span class="hljs-keyword">for</span> (Entry&lt;K,V&gt; e = table[indexFor(hash, table.length)];</span><br><span class="line">         e != <span class="hljs-literal">null</span>;</span><br><span class="line">         e = e.next) &#123;</span><br><span class="line">        Object k;</span><br><span class="line">        <span class="hljs-keyword">if</span> (e.hash == hash &amp;&amp; ((k = e.key) == key || key.<span class="hljs-keyword">equals</span>(k)))</span><br><span class="line">            <span class="hljs-keyword">return</span> e.<span class="hljs-keyword">value</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="hljs-keyword">return</span> <span class="hljs-literal">null</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="hljs-comment">/*</span></span><br><span class="line"><span class="hljs-comment">按位取并，作用上相当于取模mod或者取余%。</span></span><br><span class="line"><span class="hljs-comment">这意味着数组下标相同，并不表示hashCode相同。</span></span><br><span class="line"><span class="hljs-comment">*/</span></span><br><span class="line"><span class="hljs-function"><span class="hljs-keyword">static</span> <span class="hljs-keyword">int</span> <span class="hljs-title">indexFor</span>(<span class="hljs-params"><span class="hljs-keyword">int</span> h, <span class="hljs-keyword">int</span> length</span>) </span>&#123;</span><br><span class="line">    <span class="hljs-keyword">return</span> h &amp; (length<span class="hljs-number">-1</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="hljs-comment">// null key总是存放在Entry[]数组的第一个元素。</span></span><br><span class="line"><span class="hljs-function"><span class="hljs-keyword">private</span> V <span class="hljs-title">putForNullKey</span>(<span class="hljs-params">V <span class="hljs-keyword">value</span></span>) </span>&#123;</span><br><span class="line">    <span class="hljs-keyword">for</span> (Entry&lt;K,V&gt; e = table[<span class="hljs-number">0</span>]; e != <span class="hljs-literal">null</span>; e = e.next) &#123;</span><br><span class="line">        <span class="hljs-keyword">if</span> (e.key == <span class="hljs-literal">null</span>) &#123;</span><br><span class="line">            V oldValue = e.<span class="hljs-keyword">value</span>;</span><br><span class="line">            e.<span class="hljs-keyword">value</span> = <span class="hljs-keyword">value</span>;</span><br><span class="line">            e.recordAccess(<span class="hljs-keyword">this</span>);</span><br><span class="line">            <span class="hljs-keyword">return</span> oldValue;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    modCount++;</span><br><span class="line">    addEntry(<span class="hljs-number">0</span>, <span class="hljs-literal">null</span>, <span class="hljs-keyword">value</span>, <span class="hljs-number">0</span>);</span><br><span class="line">    <span class="hljs-keyword">return</span> <span class="hljs-literal">null</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="hljs-function"><span class="hljs-keyword">private</span> V <span class="hljs-title">getForNullKey</span>(<span class="hljs-params"></span>) </span>&#123;</span><br><span class="line">    <span class="hljs-keyword">for</span> (Entry&lt;K,V&gt; e = table[<span class="hljs-number">0</span>]; e != <span class="hljs-literal">null</span>; e = e.next) &#123;</span><br><span class="line">        <span class="hljs-keyword">if</span> (e.key == <span class="hljs-literal">null</span>)</span><br><span class="line">            <span class="hljs-keyword">return</span> e.<span class="hljs-keyword">value</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="hljs-keyword">return</span> <span class="hljs-literal">null</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h4><p><a href="https://zhuanlan.zhihu.com/p/21673805" target="_blank" rel="noopener">Java 8系列之重新认识HashMap</a><br><a href="http://blog.csdn.net/vking_wang/article/details/14166593" target="_blank" rel="noopener">HashMap实现原理分析</a><br><a href="http://www.cnblogs.com/xawei/p/6747660.html" target="_blank" rel="noopener">HashMap详解</a><br><a href="https://zhuanlan.zhihu.com/p/24367771" target="_blank" rel="noopener">红黑树深入剖析及Java实现</a></p>
+
+        </div>
+        
+        <div class="level is-size-7 is-uppercase">
+            <div class="level-start">
+                <div class="level-item">
+                    <span class="is-size-6 has-text-grey has-mr-7">#</span>
+                    <a class="has-link-grey -link" href="/tags/java/">java</a>, <a class="has-link-grey -link" href="/tags/源码/">源码</a>
+                </div>
+            </div>
+        </div>
+        
+        
+        
+        <div class="social-share"></div>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js@1.0.16/dist/css/share.min.css">
+<script src="https://cdn.jsdelivr.net/npm/social-share.js@1.0.16/dist/js/social-share.min.js"></script>
+        
+		
+		
+<div>
+	<ul class="post-copyright">
+	  <li class="post-copyright-author">
+	  <strong>作者:  </strong>Trainoo
+	  </li>
+	  <li class="post-copyright-link">
+	  <strong>本文链接:  </strong>
+	  <a href="/2018/06/25/Java-source-code-HashMap/" target="_blank" title="Java源码分析之HashMap" class="artTitle">2018/06/25/Java-source-code-HashMap/</a>
+	  </li>
+	  <li class="post-copyright-license">
+		<strong>版权声明:   </strong>
+		本博客所有文章除特别声明外,均采用 <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">CC BY-NC-ND 4.0</a>
+		许可协议。转载请注明出处!
+	  </li>
+	</ul>
+<div>
+</div></div>
+		
+		
+		
+		<div class="card card-transparent" style="margin-top: 20px;">
+			<div class="level post-navigation is-flex-wrap is-mobile">
+				
+				<div class="level-start">
+					<a class="level level-item has-link-grey  article-nav-prev" href="/2018/06/25/Java-source-code-ArrayList/">
+						<i class="level-item fas fa-chevron-left"></i>
+						<span class="level-item">Java源码分析之ArrayList</span>
+					</a>
+				</div>
+				
+				
+				<div class="level-end">
+					<a class="level level-item has-link-grey  article-nav-next" href="/2018/06/24/Java-design-pattern-singleton/">
+						<span class="level-item">Java设计模式之单例模式</span>
+						<i class="level-item fas fa-chevron-right"></i>
+					</a>
+				</div>
+				
+			</div>
+		</div>
+		
+    </div>
+</div>
+
+
+<div class="card">
+    <div class="card-content">
+        <h3 class="menu-label has-text-centered">喜欢这篇文章？打赏一下作者吧</h3>
+        <div class="buttons is-centered">
+            
+                
+<a class="button is-info donate">
+    <span class="icon is-small">
+        <i class="fab fa-alipay"></i>
+    </span>
+    <span>支付宝</span>
+    <div class="qrcode"><img src="/img/alipay.png" alt="支付宝"></div>
+</a>
+
+                
+                
+<a class="button is-success donate">
+    <span class="icon is-small">
+        <i class="fab fa-weixin"></i>
+    </span>
+    <span>微信</span>
+    <div class="qrcode"><img src="/img/wechatpay.png" alt="微信"></div>
+</a>
+
+                
+        </div>
+    </div>
+</div>
+
+</div>
+                
+
+
+
+
+
+
+<div class="column is-4-tablet is-4-desktop is-3-widescreen  has-order-3 column-left ">
+    
+        
+<div class="card widget">
+    <div class="card-content">
+        <nav class="level">
+            <div class="level-item has-text-centered">
+                <div>
+                    
+                        <img class="image is-128x128 has-mb-6" src="/img/header.png" alt="Trainoo">
+                    
+                    
+                    <p class="is-size-4 is-block">
+                        Trainoo
+                    </p>
+                    
+                        <div id="binft"></div>
+                    <!---->
+                    <!--<p class="is-size-6 is-block">-->
+                        <!--A simple man living a simple life-->
+                    <!--</p>-->
+                    
+                    
+                    <p class="is-size-6 is-flex is-flex-center has-text-grey">
+                        <i class="fas fa-map-marker-alt has-mr-7"></i>
+                        <span>ShenZhen,China</span>
+                    </p>
+                    
+                </div>
+            </div>
+        </nav>
+        <nav class="level is-mobile">
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        文章
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        51
+                    </p>
+                </div>
+            </div>
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        分类
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        5
+                    </p>
+                </div>
+            </div>
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        标签
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        30
+                    </p>
+                </div>
+            </div>
+        </nav>
+        <div class="level">
+            <a class="level-item button is-link is-rounded" href="https://github.com/TrainooZhou">
+                关注我</a>
+        </div>
+        
+        
+        <div class="level is-mobile">
+            
+            <a class="level-item button is-white is-marginless" target="_blank" title="Github" href="http://github.com/ppoffice">
+                
+                <i class="fab fa-github"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank" title="Facebook" href="http://facebook.com">
+                
+                <i class="fab fa-facebook"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank" title="Twitter" href="http://twitter.com">
+                
+                <i class="fab fa-twitter"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank" title="Dribbble" href="http://dribbble.com">
+                
+                <i class="fab fa-dribbble"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank" title="RSS" href="/atom.xml">
+                
+                <i class="fas fa-rss"></i>
+                
+            </a>
+            
+        </div>
+        
+
+        <script src="/js/profile.js"></script>
+    </div>
+</div>
+    
+        
+    
+        
+
+<div class="card widget">
+	<div>
+	<link rel="stylesheet" href="/css/APlayer.min.css">
+	<div id="aplayer" style="margin: 0 auto;"></div>
+	<script src="/js/APlayer.min.js"></script>
+	<script src="/js/music.js"></script>
+</div>
+    <div class="card-content">
+        <div class="menu">
+        <h3 class="menu-label">
+            链接
+        </h3>
+        <ul class="menu-list">
+        
+            <li>
+                <a class="level is-mobile" href="https://gitee.com/trainoo" target="_blank">
+                    <span class="level-left">
+                        <span class="level-item">码云</span>
+                    </span>
+                    <span class="level-right">
+                        <span class="level-item tag">gitee.com</span>
+                    </span>
+                </a>
+            </li>
+        
+            <li>
+                <a class="level is-mobile" href="http://www.cnblogs.com/Trainoo/" target="_blank">
+                    <span class="level-left">
+                        <span class="level-item">博客园</span>
+                    </span>
+                    <span class="level-right">
+                        <span class="level-item tag">www.cnblogs.com</span>
+                    </span>
+                </a>
+            </li>
+        
+            <li>
+                <a class="level is-mobile" href="https://trainoo.gitee.io/" target="_blank">
+                    <span class="level-left">
+                        <span class="level-item">Gitee主页</span>
+                    </span>
+                    <span class="level-right">
+                        <span class="level-item tag">trainoo.gitee.io</span>
+                    </span>
+                </a>
+            </li>
+        
+            <li>
+                <a class="level is-mobile" href="https://trainoozhou.github.io/" target="_blank">
+                    <span class="level-left">
+                        <span class="level-item">GitHub主页</span>
+                    </span>
+                    <span class="level-right">
+                        <span class="level-item tag">trainoozhou.github.io</span>
+                    </span>
+                </a>
+            </li>
+        
+        </ul>
+        </div>
+    </div>
+</div>
+
+
+    
+        
+<div class="card widget">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                分类
+            </h3>
+            <ul class="menu-list">
+            <li>
+        <a class="level is-marginless" href="/categories/相册/">
+            <span class="level-start">
+                <span class="level-item">相册</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">8</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/语言/">
+            <span class="level-start">
+                <span class="level-item">语言</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">17</span>
+            </span>
+        </a><ul><li>
+        <a class="level is-marginless" href="/categories/语言/java/">
+            <span class="level-start">
+                <span class="level-item">java</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">6</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/语言/python/">
+            <span class="level-start">
+                <span class="level-item">python</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">10</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/语言/shell/">
+            <span class="level-start">
+                <span class="level-item">shell</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">1</span>
+            </span>
+        </a></li></ul></li>
+            </ul>
+        </div>
+    </div>
+</div>
+    
+        
+<div class="card widget">
+    <div class="card-content">
+        <h3 class="menu-label">
+            标签云
+        </h3>
+        <a href="/tags/IDE/" style="font-size: 10px;">IDE</a> <a href="/tags/Jenkins/" style="font-size: 15px;">Jenkins</a> <a href="/tags/cmd/" style="font-size: 15px;">cmd</a> <a href="/tags/docker/" style="font-size: 13.33px;">docker</a> <a href="/tags/dubbo/" style="font-size: 10px;">dubbo</a> <a href="/tags/elasticsearch/" style="font-size: 11.67px;">elasticsearch</a> <a href="/tags/filebeat/" style="font-size: 10px;">filebeat</a> <a href="/tags/git/" style="font-size: 11.67px;">git</a> <a href="/tags/java/" style="font-size: 16.67px;">java</a> <a href="/tags/kafka/" style="font-size: 10px;">kafka</a> <a href="/tags/kibana/" style="font-size: 10px;">kibana</a> <a href="/tags/linux/" style="font-size: 16.67px;">linux</a> <a href="/tags/logstash/" style="font-size: 10px;">logstash</a> <a href="/tags/mysql/" style="font-size: 10px;">mysql</a> <a href="/tags/nginx/" style="font-size: 10px;">nginx</a> <a href="/tags/python/" style="font-size: 20px;">python</a> <a href="/tags/shell/" style="font-size: 10px;">shell</a> <a href="/tags/spring/" style="font-size: 10px;">spring</a> <a href="/tags/web/" style="font-size: 10px;">web</a> <a href="/tags/windows/" style="font-size: 10px;">windows</a> <a href="/tags/博客/" style="font-size: 13.33px;">博客</a> <a href="/tags/图集/" style="font-size: 18.33px;">图集</a> <a href="/tags/摘抄笔记/" style="font-size: 11.67px;">摘抄笔记</a> <a href="/tags/浏览器/" style="font-size: 10px;">浏览器</a> <a href="/tags/源码/" style="font-size: 11.67px;">源码</a> <a href="/tags/线程池/" style="font-size: 10px;">线程池</a> <a href="/tags/设计模式/" style="font-size: 11.67px;">设计模式</a> <a href="/tags/起航/" style="font-size: 10px;">起航</a> <a href="/tags/随笔/" style="font-size: 20px;">随笔</a> <a href="/tags/面试/" style="font-size: 10px;">面试</a>
+    </div>
+</div>
+
+    
+    
+        <div class="column-right-shadow is-hidden-widescreen ">
+        
+            
+<div class="card widget">
+    <div class="card-content">
+        <h3 class="menu-label">
+            最新文章
+        </h3>
+        
+        <article class="media">
+            
+            <a href="/2020/03/28/jvm-monitor-practice/" class="media-left">
+                <p class="image is-64x64">
+                    <img class="thumbnail" src="/picture/2020/20200328001.jpg" alt="JVM及Java监控原理与实践">
+                </p>
+            </a>
+            
+            <div class="media-content">
+                <div class="content">
+                    <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2020-03-28T07:33:00.000Z">2020-03-28</time></div>
+                    <a href="/2020/03/28/jvm-monitor-practice/" class="has-link-black-ter is-size-6">JVM及Java监控原理与实践</a>
+                    <p class="is-size-7 is-uppercase">
+                        
+                    </p>
+                </div>
+            </div>
+        </article>
+        
+        <article class="media">
+            
+            <a href="/2019/12/28/Jenkins-role-base-authorization-strategy-plugin/" class="media-left">
+                <p class="image is-64x64">
+                    <img class="thumbnail" src="/picture/2019/20191228003.png" alt="Jenkins的权限管理">
+                </p>
+            </a>
+            
+            <div class="media-content">
+                <div class="content">
+                    <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2019-12-28T08:11:00.000Z">2019-12-28</time></div>
+                    <a href="/2019/12/28/Jenkins-role-base-authorization-strategy-plugin/" class="has-link-black-ter is-size-6">Jenkins的权限管理</a>
+                    <p class="is-size-7 is-uppercase">
+                        
+                    </p>
+                </div>
+            </div>
+        </article>
+        
+        <article class="media">
+            
+            <a href="/2019/12/28/Jenkins-startup-error/" class="media-left">
+                <p class="image is-64x64">
+                    <img class="thumbnail" src="/picture/2019/20191228001.png" alt="Jenkins启动报错解决">
+                </p>
+            </a>
+            
+            <div class="media-content">
+                <div class="content">
+                    <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2019-12-28T07:31:00.000Z">2019-12-28</time></div>
+                    <a href="/2019/12/28/Jenkins-startup-error/" class="has-link-black-ter is-size-6">Jenkins启动报错解决</a>
+                    <p class="is-size-7 is-uppercase">
+                        
+                    </p>
+                </div>
+            </div>
+        </article>
+        
+        <article class="media">
+            
+            <a href="/2019/12/18/springmvc-to-springboot-web/" class="media-left">
+                <p class="image is-64x64">
+                    <img class="thumbnail" src="/picture/2019/20191218001.png" alt="SpringMvc项目改造成springboot+web项目踩坑指南">
+                </p>
+            </a>
+            
+            <div class="media-content">
+                <div class="content">
+                    <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2019-12-18T06:11:00.000Z">2019-12-18</time></div>
+                    <a href="/2019/12/18/springmvc-to-springboot-web/" class="has-link-black-ter is-size-6">SpringMvc项目改造成springboot+web项目踩坑指南</a>
+                    <p class="is-size-7 is-uppercase">
+                        
+                    </p>
+                </div>
+            </div>
+        </article>
+        
+        <article class="media">
+            
+            <a href="/2019/11/26/solve-es-startup-error/" class="media-left">
+                <p class="image is-64x64">
+                    <img class="thumbnail" src="/picture/2019/20191126001.png" alt="Elasticsearch启动异常处理">
+                </p>
+            </a>
+            
+            <div class="media-content">
+                <div class="content">
+                    <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2019-11-26T11:40:00.000Z">2019-11-26</time></div>
+                    <a href="/2019/11/26/solve-es-startup-error/" class="has-link-black-ter is-size-6">Elasticsearch启动异常处理</a>
+                    <p class="is-size-7 is-uppercase">
+                        
+                    </p>
+                </div>
+            </div>
+        </article>
+        
+    </div>
+</div>
+
+        
+            <div class="card widget">
+    <div class="card-content">
+        <div class="menu">
+        <h3 class="menu-label">
+            归档
+        </h3>
+        <ul class="menu-list">
+        
+        <li>
+            <a class="level is-marginless" href="/archives/2020/03/">
+                <span class="level-start">
+                    <span class="level-item">三月 2020</span>
+                </span>
+                <span class="level-end">
+                    <span class="level-item tag">1</span>
+                </span>
+            </a>
+        </li>
+        
+        <li>
+            <a class="level is-marginless" href="/archives/2019/12/">
+                <span class="level-start">
+                    <span class="level-item">十二月 2019</span>
+                </span>
+                <span class="level-end">
+                    <span class="level-item tag">3</span>
+                </span>
+            </a>
+        </li>
+        
+        <li>
+            <a class="level is-marginless" href="/archives/2019/11/">
+                <span class="level-start">
+                    <span class="level-item">十一月 2019</span>
+                </span>
+                <span class="level-end">
+                    <span class="level-item tag">1</span>
+                </span>
+            </a>
+        </li>
+        
+        <li>
+            <a class="level is-marginless" href="/archives/2019/10/">
+                <span class="level-start">
+                    <span class="level-item">十月 2019</span>
+                </span>
+                <span class="level-end">
+                    <span class="level-item tag">6</span>
+                </span>
+            </a>
+        </li>
+        
+        <li>
+            <a class="level is-marginless" href="/archives/2019/09/">
+                <span class="level-start">
+                    <span class="level-item">九月 2019</span>
+                </span>
+                <span class="level-end">
+                    <span class="level-item tag">2</span>
+                </span>
+            </a>
+        </li>
+        
+        <li>
+            <a class="level is-marginless" href="/archives/2019/07/">
+                <span class="level-start">
+                    <span class="level-item">七月 2019</span>
+                </span>
+                <span class="level-end">
+                    <span class="level-item tag">1</span>
+                </span>
+            </a>
+        </li>
+        
+        <li>
+            <a class="level is-marginless" href="/archives/2019/06/">
+                <span class="level-start">
+                    <span class="level-item">六月 2019</span>
+                </span>
+                <span class="level-end">
+                    <span class="level-item tag">2</span>
+                </span>
+            </a>
+        </li>
+        
+        <li>
+            <a class="level is-marginless" href="/archives/2019/05/">
+                <span class="level-start">
+                    <span class="level-item">五月 2019</span>
+                </span>
+                <span class="level-end">
+                    <span class="level-item tag">1</span>
+                </span>
+            </a>
+        </li>
+        
+        <li>
+            <a class="level is-marginless" href="/archives/2018/12/">
+                <span class="level-start">
+                    <span class="level-item">十二月 2018</span>
+                </span>
+                <span class="level-end">
+                    <span class="level-item tag">2</span>
+                </span>
+            </a>
+        </li>
+        
+        <li>
+            <a class="level is-marginless" href="/archives/2018/11/">
+                <span class="level-start">
+                    <span class="level-item">十一月 2018</span>
+                </span>
+                <span class="level-end">
+                    <span class="level-item tag">2</span>
+                </span>
+            </a>
+        </li>
+        
+        <li>
+            <a class="level is-marginless" href="/archives/2018/09/">
+                <span class="level-start">
+                    <span class="level-item">九月 2018</span>
+                </span>
+                <span class="level-end">
+                    <span class="level-item tag">4</span>
+                </span>
+            </a>
+        </li>
+        
+        <li>
+            <a class="level is-marginless" href="/archives/2018/06/">
+                <span class="level-start">
+                    <span class="level-item">六月 2018</span>
+                </span>
+                <span class="level-end">
+                    <span class="level-item tag">17</span>
+                </span>
+            </a>
+        </li>
+        
+        <li>
+            <a class="level is-marginless" href="/archives/2018/05/">
+                <span class="level-start">
+                    <span class="level-item">五月 2018</span>
+                </span>
+                <span class="level-end">
+                    <span class="level-item tag">2</span>
+                </span>
+            </a>
+        </li>
+        
+        <li>
+            <a class="level is-marginless" href="/archives/2018/04/">
+                <span class="level-start">
+                    <span class="level-item">四月 2018</span>
+                </span>
+                <span class="level-end">
+                    <span class="level-item tag">1</span>
+                </span>
+            </a>
+        </li>
+        
+        <li>
+            <a class="level is-marginless" href="/archives/2018/01/">
+                <span class="level-start">
+                    <span class="level-item">一月 2018</span>
+                </span>
+                <span class="level-end">
+                    <span class="level-item tag">1</span>
+                </span>
+            </a>
+        </li>
+        
+        <li>
+            <a class="level is-marginless" href="/archives/2017/12/">
+                <span class="level-start">
+                    <span class="level-item">十二月 2017</span>
+                </span>
+                <span class="level-end">
+                    <span class="level-item tag">5</span>
+                </span>
+            </a>
+        </li>
+        
+        </ul>
+        </div>
+    </div>
+</div>
+        
+            <div class="card widget">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                标签
+            </h3>
+            <div class="field is-grouped is-grouped-multiline">
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/IDE/">
+                        <span class="tag">IDE</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/Jenkins/">
+                        <span class="tag">Jenkins</span>
+                        <span class="tag is-grey">4</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/cmd/">
+                        <span class="tag">cmd</span>
+                        <span class="tag is-grey">4</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/docker/">
+                        <span class="tag">docker</span>
+                        <span class="tag is-grey">3</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/dubbo/">
+                        <span class="tag">dubbo</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/elasticsearch/">
+                        <span class="tag">elasticsearch</span>
+                        <span class="tag is-grey">2</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/filebeat/">
+                        <span class="tag">filebeat</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/git/">
+                        <span class="tag">git</span>
+                        <span class="tag is-grey">2</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/java/">
+                        <span class="tag">java</span>
+                        <span class="tag is-grey">7</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/kafka/">
+                        <span class="tag">kafka</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/kibana/">
+                        <span class="tag">kibana</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/linux/">
+                        <span class="tag">linux</span>
+                        <span class="tag is-grey">7</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/logstash/">
+                        <span class="tag">logstash</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/mysql/">
+                        <span class="tag">mysql</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/nginx/">
+                        <span class="tag">nginx</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/python/">
+                        <span class="tag">python</span>
+                        <span class="tag is-grey">11</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/shell/">
+                        <span class="tag">shell</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/spring/">
+                        <span class="tag">spring</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/web/">
+                        <span class="tag">web</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/windows/">
+                        <span class="tag">windows</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/博客/">
+                        <span class="tag">博客</span>
+                        <span class="tag is-grey">3</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/图集/">
+                        <span class="tag">图集</span>
+                        <span class="tag is-grey">8</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/摘抄笔记/">
+                        <span class="tag">摘抄笔记</span>
+                        <span class="tag is-grey">2</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/浏览器/">
+                        <span class="tag">浏览器</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/源码/">
+                        <span class="tag">源码</span>
+                        <span class="tag is-grey">2</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/线程池/">
+                        <span class="tag">线程池</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/设计模式/">
+                        <span class="tag">设计模式</span>
+                        <span class="tag is-grey">2</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/起航/">
+                        <span class="tag">起航</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/随笔/">
+                        <span class="tag">随笔</span>
+                        <span class="tag is-grey">11</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/面试/">
+                        <span class="tag">面试</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+</div>
+        
+        </div>
+    
+</div>
+
+                
+
+
+            </div>
+        </div>
+    </section>
+    <footer class="footer">
+    <div class="container">
+        <div class="level">
+            <div class="level-start has-text-centered-mobile">
+                <a class="footer-logo is-block has-mb-6" href="/">
+                
+                    <img src="/img/logo.png" alt="Java源码分析之HashMap" height="28">
+                
+                </a>
+                <p class="is-size-7">
+                &copy; 2020 Trainoo&nbsp;
+                Powered by <a href="http://hexo.io/" target="_blank">Hexo</a> Theme base on <a href="http://github.com/ppoffice/hexo-theme-icarus" target="_blank">Icarus</a>
+                </p>
+            </div>
+            <div class="level-end">
+            
+                <div class="field has-addons is-flex-center-mobile has-mt-5-mobile is-flex-wrap is-flex-middle">
+                
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Creative Commons" href="https://creativecommons.org/">
+                        
+                        <i class="fab fa-creative-commons"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/">
+                        
+                        <i class="fab fa-creative-commons-by"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Follow me on GitHub" href="https://github.com/trainoozhou">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                </p>
+                
+                </div>
+            
+			
+            </div>
+			<div>
+			<p class="is-size-7" style="text-align: center">
+				<span id="timeDate">Loading date...</span><span id="times">Loading minutes...</span>
+				<script>
+					var now = new Date(); 
+					function createtime() { 
+						var grt= new Date("12/14/2017 12:00:00"); //此处修改你的建站时间或者网站上线时间
+						now.setTime(now.getTime()+250); 
+						days = (now - grt ) / 1000 / 60 / 60 / 24; dnum = Math.floor(days); 
+						hours = (now - grt ) / 1000 / 60 / 60 - (24 * dnum); hnum = Math.floor(hours); 
+						if(String(hnum).length ==1 ){hnum = "0" + hnum;} minutes = (now - grt ) / 1000 /60 - (24 * 60 * dnum) - (60 * hnum); 
+						mnum = Math.floor(minutes); if(String(mnum).length ==1 ){mnum = "0" + mnum;} 
+						seconds = (now - grt ) / 1000 - (24 * 60 * 60 * dnum) - (60 * 60 * hnum) - (60 * mnum); 
+						snum = Math.round(seconds); if(String(snum).length ==1 ){snum = "0" + snum;} 
+						document.getElementById("timeDate").innerHTML = "&#9829; Security Run For "+dnum+" Days "; 
+						document.getElementById("times").innerHTML = hnum + " : " + mnum + " : " + snum + " &#9829;"; 
+					} 
+					setInterval("createtime()",250);
+				</script>
+				
+				<br>
+				<span id="busuanzi_container_site_uv">
+				共<span id="busuanzi_value_site_uv">0</span>个访客
+				</span>
+				
+			</p>
+			</div>
+        </div>
+    </div>
+</footer>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script>
+<script>moment.locale("zh-CN");</script>
+
+
+    
+    
+    
+    <script src="/js/animation.js"></script>
+    
+
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/lightgallery@1.6.8/dist/js/lightgallery.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/js/jquery.justifiedGallery.min.js" defer></script>
+    <script src="/js/gallery.js" defer></script>
+    
+
+    
+    
+
+<div id="outdated">
+    <h6>Your browser is out-of-date!</h6>
+    <p>Update your browser to view this website correctly. <a id="btnUpdateBrowser" href="http://outdatedbrowser.com/">Update
+            my browser now </a></p>
+    <p class="last"><a href="#" id="btnCloseUpdateBrowser" title="Close">&times;</a></p>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.js" defer></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        outdatedBrowser({
+            bgColor: '#f25648',
+            color: '#ffffff',
+            lowerThan: 'flex'
+        });
+    });
+</script>
+
+
+    
+    
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/unpacked/MathJax.js?config=TeX-MML-AM_CHTML" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    MathJax.Hub.Config({
+        'HTML-CSS': {
+            matchFontHeight: false
+        },
+        SVG: {
+            matchFontHeight: false
+        },
+        CommonHTML: {
+            matchFontHeight: false
+        },
+        tex2jax: {
+            inlineMath: [
+                ['$','$'],
+                ['\\(','\\)']
+            ]
+        }
+    });
+});
+</script>
+
+    
+    
+
+<a id="back-to-top" title="回到顶端" href="javascript:;">
+    <i class="fas fa-chevron-up"></i>
+</a>
+<script src="/js/back-to-top.js" defer></script>
+
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script>
+    <script src="/js/clipboard.js" defer></script>
+    
+
+    
+    
+    
+
+    
+
+
+<script src="/js/main.js" defer></script>
+
+    
+    <div class="searchbox ins-search">
+    <div class="searchbox-container ins-search-container">
+        <div class="searchbox-input-wrapper">
+            <input type="text" class="searchbox-input ins-search-input" placeholder="想要查找什么...">
+            <span class="searchbox-close ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="searchbox-result-wrapper ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+    (function (window) {
+        var INSIGHT_CONFIG = {
+            TRANSLATION: {
+                POSTS: '文章',
+                PAGES: '页面',
+                CATEGORIES: '分类',
+                TAGS: '标签',
+                UNTITLED: '(无标题)',
+            },
+            CONTENT_URL: '/content.json',
+        };
+        window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+    })(window);
+</script>
+<script src="/js/insight.js" defer></script>
+<link rel="stylesheet" href="/css/search.css">
+<link rel="stylesheet" href="/css/insight.css">
+    
+
+    <!-- 主题设置 -->
+    <script type="text/javascript" src="/js/theme-setting.js" }=""></script>
+    <script type="text/javascript" src="/js/universe.js"></script>
+
+	<!-- 鼠标点击特效 -->
+	<script type="text/javascript">
+      var windowWidth = $(window).width();
+      if (windowWidth > 480) {
+		// 烟花特效
+		document.write('<canvas class="fireworks" width="100%" height="100%" style="position: fixed; left: 0; top: 0; z-index: 99999999; pointer-events: none;"></canvas>');
+        document.write('<script type="text/javascript" src="/js/anime.min.js"><\/script>');
+		document.write('<script type="text/javascript" src="/js/fireworks.js"><\/script>');
+		// 爱心
+		document.write('<script type="text/javascript" src="/js/click.js"><\/script>');
+      }
+    </script>
+
+	<!-- 处理文章链接地址 -->
+	<script type="text/javascript">
+		window.onload=function (){
+			var curWwwPath=window.document.location.href;
+			var pathName=window.document.location.pathname;
+			var pos=curWwwPath.indexOf(pathName);
+			var url=curWwwPath.substring(0, pos);
+			var title = $('.artTitle').html();
+			$('.artTitle').html(url + "/" + title);
+		}
+	</script>
+</body>
+</html>

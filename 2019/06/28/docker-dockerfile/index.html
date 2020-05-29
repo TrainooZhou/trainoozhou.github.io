@@ -1,0 +1,1324 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+<title>Dockerfile极简入门与实践 - Trainoo的博客</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+    <meta name="description" content="前文中，罗列了docker使用中用到的基本命令此文，将会对怎样使用Dockerfile去创建一个镜像做简单的介绍">
+<meta name="keywords" content="docker">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Dockerfile极简入门与实践">
+<meta property="og:url" content="http://yoursite.com/2019/06/28/docker-dockerfile/index.html">
+<meta property="og:site_name" content="Trainoo的博客">
+<meta property="og:description" content="前文中，罗列了docker使用中用到的基本命令此文，将会对怎样使用Dockerfile去创建一个镜像做简单的介绍">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-07-09T07:10:41.662Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Dockerfile极简入门与实践">
+<meta name="twitter:description" content="前文中，罗列了docker使用中用到的基本命令此文，将会对怎样使用Dockerfile去创建一个镜像做简单的介绍">
+
+
+
+<link rel="alternative" href="/atom.xml" title="Dockerfile极简入门与实践" type="application/atom+xml">
+
+
+
+<link rel="icon" href="/img/favicon.png">
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.7.2/css/bulma.css">
+<link rel="stylesheet" href="/./css/all.css">
+<link rel="stylesheet" href="/./css/fonts.googleapis.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/atom-one-light.css">
+
+
+    
+    
+    
+    <style>body>.footer,body>.navbar,body>.section{opacity:0}</style>
+    
+
+    
+    
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.6.8/dist/css/lightgallery.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/css/justifiedGallery.min.css">
+    
+
+    
+    
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.css">
+
+
+    
+    
+    
+    
+
+<link rel="stylesheet" href="/css/back-to-top.css">
+
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+<link rel="stylesheet" href="/css/progressbar.css">
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+
+    
+    
+    
+
+    
+    
+    
+        <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    
+
+    
+
+
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="is-3-column">
+    <nav class="navbar navbar-main">
+    <div class="container">
+        <div class="navbar-brand is-flex-center">
+            <a class="navbar-item navbar-logo" href="/">
+            
+                <img src="/img/logo.png" alt="Dockerfile极简入门与实践" height="28">
+            
+            </a>
+        </div>
+        <div class="navbar-menu">
+            
+            <div class="navbar-start">
+                
+                <a class="navbar-item" href="/">主页</a>
+                
+                <a class="navbar-item" href="/archives">时间轴</a>
+                
+                <a class="navbar-item" href="/categories/相册/">相册</a>
+                
+                <a class="navbar-item" href="/about">关于</a>
+                
+            </div>
+            
+            <div class="navbar-end">
+                
+                    
+                    
+                    <a class="navbar-item" target="_blank" title="My GitHub" href="https://github.com/trainoozhou">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                    
+                
+                
+                
+                <a class="navbar-item search" title="搜索" href="javascript:;">
+                    <i class="fas fa-search"></i>
+                </a>
+                
+                <a class="navbar-item" id="night-nav" title="Night Mode" href="javascript:;">
+                    <i class="fas fa-moon" id="night-icon"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</nav>
+    
+
+	
+    <canvas id="universe"></canvas>
+    <section class="section">
+        <div class="container">
+            <div class="columns">
+                <div class="column is-6-tablet is-6-desktop is-9-widescreen has-order-2 column-main"><div class="card">
+    
+    <div class="card-image">
+        <span class="image is-7by1">
+            <img class="thumbnail" src="/picture/2019/20190628001.png" alt="Dockerfile极简入门与实践">
+        </span>
+    </div>
+    
+    <div class="card-content article ">
+        
+        <div class="level article-meta is-size-7 is-uppercase is-mobile is-overflow-x-auto">
+            <div class="level-left">
+                <time class="level-item has-text-grey" datetime="2019-06-27T16:00:00.000Z">2019-06-28</time>
+                
+                
+                <span class="level-item has-text-grey">
+                    
+                    
+                    11 分钟 读完 (大约 1615 个字)
+                </span>
+                
+                
+                <span class="level-item has-text-grey" id="busuanzi_container_page_pv">
+                    <i class="far fa-eye"></i>
+                    <span id="busuanzi_value_page_pv">0</span>次访问
+                </span>
+                
+            </div>
+        </div>
+        
+        <h1 class="title is-size-3 is-size-4-mobile has-text-weight-normal">
+            
+                Dockerfile极简入门与实践
+            
+        </h1>
+        <div class="content">
+            <p>前文中，罗列了docker使用中用到的基本命令<br>此文，将会对怎样使用Dockerfile去创建一个镜像做简单的介绍</p>
+<a id="more"></a>
+<h4 id="Dockerfile命令"><a href="#Dockerfile命令" class="headerlink" title="Dockerfile命令"></a><strong>Dockerfile命令</strong></h4><p>要开始编写Dockerfile，首先要对相关的命令有个清晰的认识<br>下面列出了部分Dockerfile命令的功能以及使用方法，供参考：</p>
+<h6 id="1-FROM"><a href="#1-FROM" class="headerlink" title="1. FROM"></a><strong>1. FROM</strong></h6><p>Dockerfile的第一条指定必须是FROM，用于指定基础镜像。<br>用法：<br><code>FROM [image]:[tag]</code></p>
+<h6 id="2-MAINTAINER"><a href="#2-MAINTAINER" class="headerlink" title="2. MAINTAINER"></a><strong>2. MAINTAINER</strong></h6><p>用于指定此Dockerfile维护者信息。<br>用法：<br><code>MAINTAINER &lt;name&gt; &lt;email&gt;</code></p>
+<h6 id="3-ADD"><a href="#3-ADD" class="headerlink" title="3. ADD"></a><strong>3. ADD</strong></h6><p>复制指定内容到镜像中，指定内容可以是一个相对或绝对路径，也可以是一个url(此时相当于wget)，如果添加的文件是个tar压缩文件，文件在复制的时候会自动解压。<br>用法：<br><code>ADD &lt;src&gt; &lt;dest&gt;</code></p>
+<h6 id="4-COPY"><a href="#4-COPY" class="headerlink" title="4. COPY"></a><strong>4. COPY</strong></h6><p>与ADD命令用法相同，区别是COPY只能复制本地文件<br>用法：<br><code>COPY &lt;src&gt; &lt;dest&gt;</code></p>
+<h6 id="5-RUN"><a href="#5-RUN" class="headerlink" title="5. RUN"></a><strong>5. RUN</strong></h6><p>构建镜像时运行指定命令，建议多个命令尽量写在同一个RUN中，用<code>&amp;&amp;</code>分割或使用<code>\</code>换行。<br>用法：<br><code>RUN &lt;command&gt;</code><br><code>RUN [&quot;executable&quot;, &quot;param1&quot;, &quot;param2&quot;]</code><br>前者在shell终端上运行，后者使用exec运行。</p>
+<h6 id="6-CMD"><a href="#6-CMD" class="headerlink" title="6. CMD"></a><strong>6. CMD</strong></h6><p>容器启动时运行指定命令，每个容器只能执行一条CMD命令，多个CMD命令时，只最后一条被执行。<br>用法：<br><code>CMD [&quot;executable&quot;,&quot;param1&quot;,&quot;param2&quot;]</code><br><code>CMD [&quot;param1&quot;,&quot;param2&quot;]</code><br><code>CMD &lt;command&gt; &lt;param1&gt; &lt;param2&gt;</code></p>
+<h6 id="7-ENV"><a href="#7-ENV" class="headerlink" title="7. ENV"></a><strong>7. ENV</strong></h6><p>指定一个环境变量，可以被RUN,WORKDIR命令使用，并在容器运行时保持。<br>用法:<br><code>ENV &lt;key&gt; &lt;value&gt;</code><br><code>ENV &lt;key1&gt;=&lt;value1&gt; &lt;k2&gt;=&lt;v2&gt; &lt;k3&gt;=&lt;v3&gt; ...</code></p>
+<h6 id="8-ENTRYPOINT"><a href="#8-ENTRYPOINT" class="headerlink" title="8. ENTRYPOINT"></a><strong>8. ENTRYPOINT</strong></h6><p>配置容器启动后执行的命令，并且不可被 docker run 提供的参数覆盖，每个Dockerfile中只能有一个 ENTRYPOINT ，当指定多个时，只有最后一个起效。<br>用法：<br><code>ENTRYPOINT [“executable”, “param1”, “param2”]</code><br><code>ENTRYPOINT &lt;command&gt; &lt;param1&gt; &lt;param2&gt;</code></p>
+<h6 id="9-WORKDIR"><a href="#9-WORKDIR" class="headerlink" title="9. WORKDIR"></a><strong>9. WORKDIR</strong></h6><p>设置工作目录，对RUN,CMD,ENTRYPOINT,COPY,ADD生效。如果不存在则会创建。<br>用法：<br><code>WORKDIR &lt;path&gt;</code></p>
+<h6 id="10-EXPOSE"><a href="#10-EXPOSE" class="headerlink" title="10. EXPOSE"></a><strong>10. EXPOSE</strong></h6><p>功能为暴漏容器运行时的监听端口给外部<br>用法：<br><code>EXPOSE &lt;port&gt;</code></p>
+<h4 id="Dockerfile实践"><a href="#Dockerfile实践" class="headerlink" title="Dockerfile实践"></a><strong>Dockerfile实践</strong></h4><p>通读过上面的Dockerfile命令，相信对编写一个Dockerfile有了一个初步的认识<br>接着，我们来通过一个具体的需求，来看一个完整的镜像是怎么通过Dockerfile生成的</p>
+<h6 id="1-需求"><a href="#1-需求" class="headerlink" title="1. 需求"></a><strong>1. 需求</strong></h6><p>使用32位的jre环境运行一个dubbo服务的jar包</p>
+<h6 id="2-编写Dockerfile"><a href="#2-编写Dockerfile" class="headerlink" title="2. 编写Dockerfile"></a><strong>2. 编写Dockerfile</strong></h6><p>首先，我们需要一个32位的jre环境，你可以从镜像仓库找一个，但此处，我们选择通过Dockerfile自己创建<br><figure class="highlight routeros hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-comment"># 指定基础镜像</span></span><br><span class="line"><span class="hljs-keyword">FROM</span> i386/centos:6</span><br><span class="line"><span class="hljs-comment"># 作者信息</span></span><br><span class="line">MAINTAINER trainoo <span class="hljs-string">"trainoo@163.com"</span></span><br><span class="line"><span class="hljs-comment"># 添加jre环境，add会自动解压</span></span><br><span class="line"><span class="hljs-builtin-name">ADD</span> jre-8u211-linux-i586.tar.gz /opt/docker/java/jre8</span><br><span class="line"><span class="hljs-comment"># 设置java环境变量</span></span><br><span class="line">ENV <span class="hljs-attribute">JAVA_HOME</span>=/opt/docker/java/jre8/jre1.8.0_211 \</span><br><span class="line">	<span class="hljs-attribute">CLASSPATH</span>=<span class="hljs-variable">$JAVA_HOME</span>/bin \</span><br><span class="line">	<span class="hljs-attribute">PATH</span>=.:$JAVA_HOME/bin:$PATH</span><br><span class="line"><span class="hljs-comment"># 容器启动后执行，显示java版本号，可以查看环境是否安装成功</span></span><br><span class="line">CMD [<span class="hljs-string">"java"</span>,<span class="hljs-string">"-version"</span>]</span><br></pre></td></tr></table></figure></p>
+<p>问：为什么使用 i386/centos:6 作为基础镜像？<br>答：因为32位的jre当然是使用32位的环境运行比较方便<br>如果使用64位的环境运行32位jre也是可以的，但是需要安装如下依赖：<br><code>RUN yum update &amp;&amp; yum -y install glibc.i686 zlib.i686 libstdc++.i686</code><br>如果打包的是64位的jre，那么基础镜像可以换成：frolvlad/alpine-glibc</p>
+<p>问：jre-8u211-linux-i586.tar.gz 这个包从哪下载？<br>答：你可以从<a href="https://www.java.com/en/download/manual.jsp" target="_blank" rel="noopener">官网</a>下载，当然，你看到此文章时，可能网址已经变化。</p>
+<h6 id="3-构建"><a href="#3-构建" class="headerlink" title="3. 构建"></a><strong>3. 构建</strong></h6><p>如上，我们写好了一个Dockerfile，只需把jre包跟Dockerfile放在同一路径<br>即可开始构建，命令如下：<code>docker build -t jre8-64:second .</code><br>ps: 此处应该贴32位的运行过程的，但是64位的跟32位没太大区别，所以就这样吧</p>
+<figure class="highlight elixir hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">[root<span class="hljs-variable">@xxx</span> jre8-x32]<span class="hljs-comment"># ll</span></span><br><span class="line">total <span class="hljs-number">89060</span></span><br><span class="line">-rw-r--r--. <span class="hljs-number">1</span> root root      <span class="hljs-number">369</span> Jun <span class="hljs-number">27</span> <span class="hljs-number">18</span><span class="hljs-symbol">:</span><span class="hljs-number">38</span> Dockerfile</span><br><span class="line">-rw-r--r--. <span class="hljs-number">1</span> root root <span class="hljs-number">91192891</span> Jun <span class="hljs-number">26</span> <span class="hljs-number">14</span><span class="hljs-symbol">:</span><span class="hljs-number">52</span> jre-<span class="hljs-number">8</span>u211-linux-i586.tar.gz</span><br><span class="line"></span><br><span class="line">[root<span class="hljs-variable">@xxx</span> jre8-x64]<span class="hljs-comment"># docker build -t jre8-64:second .</span></span><br><span class="line">Sending build context to Docker daemon  <span class="hljs-number">87.86</span>MB</span><br><span class="line">Step <span class="hljs-number">1</span>/<span class="hljs-number">5</span> : FROM frolvlad/alpine-<span class="hljs-symbol">glibc:</span>alpine-<span class="hljs-number">3.10</span></span><br><span class="line"> ---&gt; <span class="hljs-number">74</span>b43ef19206</span><br><span class="line">Step <span class="hljs-number">2</span>/<span class="hljs-number">5</span> : MAINTAINER trainoo <span class="hljs-string">"trainoo@163.com"</span></span><br><span class="line"> ---&gt; Using cache</span><br><span class="line"> ---&gt; <span class="hljs-number">1257</span>f5f17f2a</span><br><span class="line">Step <span class="hljs-number">3</span>/<span class="hljs-number">5</span> : ADD jre-<span class="hljs-number">8</span>u211-linux-x64.tar.gz /opt/docker/java/jre8</span><br><span class="line"> ---&gt; Using cache</span><br><span class="line"> ---&gt; <span class="hljs-number">10692</span>b79be49</span><br><span class="line">Step <span class="hljs-number">4</span>/<span class="hljs-number">5</span> : ENV JAVA_HOME=<span class="hljs-regexp">/opt/docker</span><span class="hljs-regexp">/java/jre</span>8/jre1.<span class="hljs-number">8.0_211</span> CLASSPATH=<span class="hljs-variable">$JAVA_HOME</span>/bin PATH=.<span class="hljs-symbol">:</span><span class="hljs-variable">$JAVA_HOME</span>/<span class="hljs-symbol">bin:</span><span class="hljs-variable">$PATH</span></span><br><span class="line"> ---&gt; Running <span class="hljs-keyword">in</span> <span class="hljs-number">1710</span>cc8fd3aa</span><br><span class="line">Removing intermediate container <span class="hljs-number">1710</span>cc8fd3aa</span><br><span class="line"> ---&gt; <span class="hljs-number">5</span>dd2f0ae922c</span><br><span class="line">Step <span class="hljs-number">5</span>/<span class="hljs-number">5</span> : CMD [<span class="hljs-string">"java"</span>,<span class="hljs-string">"-version"</span>]</span><br><span class="line"> ---&gt; Running <span class="hljs-keyword">in</span> <span class="hljs-number">368238</span>c0940b</span><br><span class="line">Removing intermediate container <span class="hljs-number">368238</span>c0940b</span><br><span class="line"> ---&gt; e6e9cf729e37</span><br><span class="line">Successfully built e6e9cf729e37</span><br><span class="line">Successfully tagged jre8-<span class="hljs-number">64</span><span class="hljs-symbol">:second</span></span><br><span class="line"></span><br><span class="line">[root<span class="hljs-variable">@xxx</span> jre8-x64]<span class="hljs-comment"># docker images -f reference=jre8*</span></span><br><span class="line">REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE</span><br><span class="line">jre8-<span class="hljs-number">64</span>             second              e6e9cf729e37        <span class="hljs-number">53</span> seconds ago      <span class="hljs-number">251</span>MB</span><br><span class="line">jre8-<span class="hljs-number">32</span>             base                <span class="hljs-number">9035</span>f0dcd0ed        <span class="hljs-number">20</span> hours ago        <span class="hljs-number">433</span>MB</span><br><span class="line">jre8-<span class="hljs-number">64</span>             base                ce0823b7fdc3        <span class="hljs-number">47</span> hours ago        <span class="hljs-number">251</span>MB</span><br></pre></td></tr></table></figure>
+<p>由上面的构建步骤可以看出，每运行一个命令，都会产生一个临时镜像，所以为了避免产生多余的临时镜像，我们要尽量的把多个相同指令的的构建步骤，写在同一行里。</p>
+<h6 id="4-运行项目"><a href="#4-运行项目" class="headerlink" title="4. 运行项目"></a><strong>4. 运行项目</strong></h6><p>假设我们把项目打包好了，打包好的jar包为：my-service-1.0.jar。<br><figure class="highlight dockerfile hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">FROM</span> jre8-<span class="hljs-number">32</span>:base</span><br><span class="line"><span class="hljs-keyword">MAINTAINER</span> trainoo <span class="hljs-string">"trainoo@163.com"</span></span><br><span class="line"><span class="hljs-keyword">COPY</span><span class="hljs-bash"> ./jar/ /opt/dubbo-server/</span></span><br><span class="line"><span class="hljs-bash">RUN <span class="hljs-built_in">cd</span> /opt/dubbo-server/ &amp;&amp; mv $(ls | grep jar) app.jar</span></span><br><span class="line"><span class="hljs-bash">WORKDIR /opt/dubbo-server/</span></span><br><span class="line"><span class="hljs-bash">CMD [<span class="hljs-string">"java"</span>,<span class="hljs-string">"-Xms512M"</span>,<span class="hljs-string">"-Xmx512M"</span>,<span class="hljs-string">"-jar"</span>,<span class="hljs-string">"app.jar"</span>]</span></span><br><span class="line"><span class="hljs-bash"></span></span><br><span class="line"><span class="hljs-bash">// 为了通用性，这里把jar文件(如果不是springboot项目，还有lib等依赖包)放在jar目录下，COPY时一起复制过去</span></span><br><span class="line"><span class="hljs-bash">// 同样目的，使用 mv $(ls | grep jar) app.jar 将需要被执行的jar文件统一命名成 app.jar</span></span><br></pre></td></tr></table></figure></p>
+<figure class="highlight clean hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"># 构建镜像</span><br><span class="line">[root@xxx jre8-x64]# docker build -t myservice:v1 .</span><br><span class="line">.....此处省略部分.....</span><br><span class="line"># 启动容器</span><br><span class="line">[root@xxx jre8-x64]# docker run -d --name myservice myservice:v1</span><br><span class="line"># 查看容器</span><br><span class="line">[root@xxx jre8-x64]# docker ps</span><br></pre></td></tr></table></figure>
+<h4 id="后续总结"><a href="#后续总结" class="headerlink" title="后续总结"></a><strong>后续总结</strong></h4><p>事情总是不会这么顺利，中途总是会有一些小插曲，所以下面是可能遇到的问题的解决方案</p>
+<h6 id="docker-批量删除产生的缓存镜像"><a href="#docker-批量删除产生的缓存镜像" class="headerlink" title="docker 批量删除产生的缓存镜像"></a><strong>docker 批量删除产生的缓存镜像</strong></h6><figure class="highlight vim hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"># 第一种风格</span><br><span class="line">docker <span class="hljs-keyword">ps</span> -<span class="hljs-keyword">a</span> | <span class="hljs-keyword">grep</span> <span class="hljs-string">"Exited"</span> | awk <span class="hljs-string">'&#123;print $1 &#125;'</span>|xargs docker <span class="hljs-keyword">stop</span></span><br><span class="line">docker <span class="hljs-keyword">ps</span> -<span class="hljs-keyword">a</span> | <span class="hljs-keyword">grep</span> <span class="hljs-string">"Exited"</span> | awk <span class="hljs-string">'&#123;print $1 &#125;'</span>|xargs docker rm</span><br><span class="line">docker images | <span class="hljs-keyword">grep</span> none | awk <span class="hljs-string">'&#123;print $3&#125;'</span> | xargs docker rmi</span><br><span class="line"></span><br><span class="line"># 第二种风格</span><br><span class="line">docker rm  $(docker <span class="hljs-keyword">ps</span> -aq -<span class="hljs-keyword">f</span> exited=<span class="hljs-number">137</span>)</span><br><span class="line">docker rm  $(docker <span class="hljs-keyword">ps</span> -aq -<span class="hljs-keyword">f</span> status=exited)</span><br><span class="line">docker rmi $(docker images -<span class="hljs-keyword">qa</span> -<span class="hljs-keyword">f</span> reference=*:v1)</span><br></pre></td></tr></table></figure>
+<h6 id="container-时区跟-host-不一致"><a href="#container-时区跟-host-不一致" class="headerlink" title="container 时区跟 host 不一致"></a><strong>container 时区跟 host 不一致</strong></h6><figure class="highlight dockerfile hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-comment"># Dockerfile中添加</span></span><br><span class="line"><span class="hljs-keyword">RUN</span><span class="hljs-bash"> <span class="hljs-built_in">echo</span> <span class="hljs-string">"Asia/Shanghai"</span> &gt; /etc/timezone</span></span><br><span class="line"><span class="hljs-bash"></span></span><br><span class="line"><span class="hljs-bash"><span class="hljs-comment"># 启动时添加：-v /etc/localtime:/etc/localtime:ro</span></span></span><br><span class="line"><span class="hljs-bash">docker run -d -v /etc/localtime:/etc/localtime:ro --net mynet --name myservice myservice:v1</span></span><br></pre></td></tr></table></figure>
+<h6 id="docker运行项目，日志中文显示"><a href="#docker运行项目，日志中文显示" class="headerlink" title="docker运行项目，日志中文显示???"></a><strong>docker运行项目，日志中文显示???</strong></h6><figure class="highlight dockerfile hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-comment"># Dockerfile中添加，指定语言环境</span></span><br><span class="line"><span class="hljs-keyword">RUN</span><span class="hljs-bash"> localedef -i en_US -f UTF-8 en_US.UTF-8</span></span><br><span class="line"><span class="hljs-bash">ENV LANG en_US.UTF-8  </span></span><br><span class="line"><span class="hljs-bash">ENV LANGUAGE en_US:en  </span></span><br><span class="line"><span class="hljs-bash">ENV LC_ALL en_US.UTF-8</span></span><br></pre></td></tr></table></figure>
+
+        </div>
+        
+        <div class="level is-size-7 is-uppercase">
+            <div class="level-start">
+                <div class="level-item">
+                    <span class="is-size-6 has-text-grey has-mr-7">#</span>
+                    <a class="has-link-grey -link" href="/tags/docker/">docker</a>
+                </div>
+            </div>
+        </div>
+        
+        
+        
+        <div class="social-share"></div>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js@1.0.16/dist/css/share.min.css">
+<script src="https://cdn.jsdelivr.net/npm/social-share.js@1.0.16/dist/js/social-share.min.js"></script>
+        
+		
+		
+<div>
+	<ul class="post-copyright">
+	  <li class="post-copyright-author">
+	  <strong>作者:  </strong>Trainoo
+	  </li>
+	  <li class="post-copyright-link">
+	  <strong>本文链接:  </strong>
+	  <a href="/2019/06/28/docker-dockerfile/" target="_blank" title="Dockerfile极简入门与实践" class="artTitle">2019/06/28/docker-dockerfile/</a>
+	  </li>
+	  <li class="post-copyright-license">
+		<strong>版权声明:   </strong>
+		本博客所有文章除特别声明外,均采用 <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">CC BY-NC-ND 4.0</a>
+		许可协议。转载请注明出处!
+	  </li>
+	</ul>
+<div>
+</div></div>
+		
+		
+		
+		<div class="card card-transparent" style="margin-top: 20px;">
+			<div class="level post-navigation is-flex-wrap is-mobile">
+				
+				<div class="level-start">
+					<a class="level level-item has-link-grey  article-nav-prev" href="/2019/07/07/docker-machine/">
+						<i class="level-item fas fa-chevron-left"></i>
+						<span class="level-item">Docker Machine 学习笔记</span>
+					</a>
+				</div>
+				
+				
+				<div class="level-end">
+					<a class="level level-item has-link-grey  article-nav-next" href="/2019/06/22/docker-command/">
+						<span class="level-item">Docker容器入门-基本命令的使用</span>
+						<i class="level-item fas fa-chevron-right"></i>
+					</a>
+				</div>
+				
+			</div>
+		</div>
+		
+    </div>
+</div>
+
+
+<div class="card">
+    <div class="card-content">
+        <h3 class="menu-label has-text-centered">喜欢这篇文章？打赏一下作者吧</h3>
+        <div class="buttons is-centered">
+            
+                
+<a class="button is-info donate">
+    <span class="icon is-small">
+        <i class="fab fa-alipay"></i>
+    </span>
+    <span>支付宝</span>
+    <div class="qrcode"><img src="/img/alipay.png" alt="支付宝"></div>
+</a>
+
+                
+                
+<a class="button is-success donate">
+    <span class="icon is-small">
+        <i class="fab fa-weixin"></i>
+    </span>
+    <span>微信</span>
+    <div class="qrcode"><img src="/img/wechatpay.png" alt="微信"></div>
+</a>
+
+                
+        </div>
+    </div>
+</div>
+
+</div>
+                
+
+
+
+
+
+
+<div class="column is-4-tablet is-4-desktop is-3-widescreen  has-order-3 column-left ">
+    
+        
+<div class="card widget">
+    <div class="card-content">
+        <nav class="level">
+            <div class="level-item has-text-centered">
+                <div>
+                    
+                        <img class="image is-128x128 has-mb-6" src="/img/header.png" alt="Trainoo">
+                    
+                    
+                    <p class="is-size-4 is-block">
+                        Trainoo
+                    </p>
+                    
+                        <div id="binft"></div>
+                    <!---->
+                    <!--<p class="is-size-6 is-block">-->
+                        <!--A simple man living a simple life-->
+                    <!--</p>-->
+                    
+                    
+                    <p class="is-size-6 is-flex is-flex-center has-text-grey">
+                        <i class="fas fa-map-marker-alt has-mr-7"></i>
+                        <span>ShenZhen,China</span>
+                    </p>
+                    
+                </div>
+            </div>
+        </nav>
+        <nav class="level is-mobile">
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        文章
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        51
+                    </p>
+                </div>
+            </div>
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        分类
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        5
+                    </p>
+                </div>
+            </div>
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        标签
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        30
+                    </p>
+                </div>
+            </div>
+        </nav>
+        <div class="level">
+            <a class="level-item button is-link is-rounded" href="https://github.com/TrainooZhou">
+                关注我</a>
+        </div>
+        
+        
+        <div class="level is-mobile">
+            
+            <a class="level-item button is-white is-marginless" target="_blank" title="Github" href="http://github.com/ppoffice">
+                
+                <i class="fab fa-github"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank" title="Facebook" href="http://facebook.com">
+                
+                <i class="fab fa-facebook"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank" title="Twitter" href="http://twitter.com">
+                
+                <i class="fab fa-twitter"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank" title="Dribbble" href="http://dribbble.com">
+                
+                <i class="fab fa-dribbble"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank" title="RSS" href="/atom.xml">
+                
+                <i class="fas fa-rss"></i>
+                
+            </a>
+            
+        </div>
+        
+
+        <script src="/js/profile.js"></script>
+    </div>
+</div>
+    
+        
+    
+        
+
+<div class="card widget">
+	<div>
+	<link rel="stylesheet" href="/css/APlayer.min.css">
+	<div id="aplayer" style="margin: 0 auto;"></div>
+	<script src="/js/APlayer.min.js"></script>
+	<script src="/js/music.js"></script>
+</div>
+    <div class="card-content">
+        <div class="menu">
+        <h3 class="menu-label">
+            链接
+        </h3>
+        <ul class="menu-list">
+        
+            <li>
+                <a class="level is-mobile" href="https://gitee.com/trainoo" target="_blank">
+                    <span class="level-left">
+                        <span class="level-item">码云</span>
+                    </span>
+                    <span class="level-right">
+                        <span class="level-item tag">gitee.com</span>
+                    </span>
+                </a>
+            </li>
+        
+            <li>
+                <a class="level is-mobile" href="http://www.cnblogs.com/Trainoo/" target="_blank">
+                    <span class="level-left">
+                        <span class="level-item">博客园</span>
+                    </span>
+                    <span class="level-right">
+                        <span class="level-item tag">www.cnblogs.com</span>
+                    </span>
+                </a>
+            </li>
+        
+            <li>
+                <a class="level is-mobile" href="https://trainoo.gitee.io/" target="_blank">
+                    <span class="level-left">
+                        <span class="level-item">Gitee主页</span>
+                    </span>
+                    <span class="level-right">
+                        <span class="level-item tag">trainoo.gitee.io</span>
+                    </span>
+                </a>
+            </li>
+        
+            <li>
+                <a class="level is-mobile" href="https://trainoozhou.github.io/" target="_blank">
+                    <span class="level-left">
+                        <span class="level-item">GitHub主页</span>
+                    </span>
+                    <span class="level-right">
+                        <span class="level-item tag">trainoozhou.github.io</span>
+                    </span>
+                </a>
+            </li>
+        
+        </ul>
+        </div>
+    </div>
+</div>
+
+
+    
+        
+<div class="card widget">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                分类
+            </h3>
+            <ul class="menu-list">
+            <li>
+        <a class="level is-marginless" href="/categories/相册/">
+            <span class="level-start">
+                <span class="level-item">相册</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">8</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/语言/">
+            <span class="level-start">
+                <span class="level-item">语言</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">17</span>
+            </span>
+        </a><ul><li>
+        <a class="level is-marginless" href="/categories/语言/java/">
+            <span class="level-start">
+                <span class="level-item">java</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">6</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/语言/python/">
+            <span class="level-start">
+                <span class="level-item">python</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">10</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/语言/shell/">
+            <span class="level-start">
+                <span class="level-item">shell</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">1</span>
+            </span>
+        </a></li></ul></li>
+            </ul>
+        </div>
+    </div>
+</div>
+    
+        
+<div class="card widget">
+    <div class="card-content">
+        <h3 class="menu-label">
+            标签云
+        </h3>
+        <a href="/tags/IDE/" style="font-size: 10px;">IDE</a> <a href="/tags/Jenkins/" style="font-size: 15px;">Jenkins</a> <a href="/tags/cmd/" style="font-size: 15px;">cmd</a> <a href="/tags/docker/" style="font-size: 13.33px;">docker</a> <a href="/tags/dubbo/" style="font-size: 10px;">dubbo</a> <a href="/tags/elasticsearch/" style="font-size: 11.67px;">elasticsearch</a> <a href="/tags/filebeat/" style="font-size: 10px;">filebeat</a> <a href="/tags/git/" style="font-size: 11.67px;">git</a> <a href="/tags/java/" style="font-size: 16.67px;">java</a> <a href="/tags/kafka/" style="font-size: 10px;">kafka</a> <a href="/tags/kibana/" style="font-size: 10px;">kibana</a> <a href="/tags/linux/" style="font-size: 16.67px;">linux</a> <a href="/tags/logstash/" style="font-size: 10px;">logstash</a> <a href="/tags/mysql/" style="font-size: 10px;">mysql</a> <a href="/tags/nginx/" style="font-size: 10px;">nginx</a> <a href="/tags/python/" style="font-size: 20px;">python</a> <a href="/tags/shell/" style="font-size: 10px;">shell</a> <a href="/tags/spring/" style="font-size: 10px;">spring</a> <a href="/tags/web/" style="font-size: 10px;">web</a> <a href="/tags/windows/" style="font-size: 10px;">windows</a> <a href="/tags/博客/" style="font-size: 13.33px;">博客</a> <a href="/tags/图集/" style="font-size: 18.33px;">图集</a> <a href="/tags/摘抄笔记/" style="font-size: 11.67px;">摘抄笔记</a> <a href="/tags/浏览器/" style="font-size: 10px;">浏览器</a> <a href="/tags/源码/" style="font-size: 11.67px;">源码</a> <a href="/tags/线程池/" style="font-size: 10px;">线程池</a> <a href="/tags/设计模式/" style="font-size: 11.67px;">设计模式</a> <a href="/tags/起航/" style="font-size: 10px;">起航</a> <a href="/tags/随笔/" style="font-size: 20px;">随笔</a> <a href="/tags/面试/" style="font-size: 10px;">面试</a>
+    </div>
+</div>
+
+    
+    
+        <div class="column-right-shadow is-hidden-widescreen ">
+        
+            
+<div class="card widget">
+    <div class="card-content">
+        <h3 class="menu-label">
+            最新文章
+        </h3>
+        
+        <article class="media">
+            
+            <a href="/2020/03/28/jvm-monitor-practice/" class="media-left">
+                <p class="image is-64x64">
+                    <img class="thumbnail" src="/picture/2020/20200328001.jpg" alt="JVM及Java监控原理与实践">
+                </p>
+            </a>
+            
+            <div class="media-content">
+                <div class="content">
+                    <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2020-03-28T07:33:00.000Z">2020-03-28</time></div>
+                    <a href="/2020/03/28/jvm-monitor-practice/" class="has-link-black-ter is-size-6">JVM及Java监控原理与实践</a>
+                    <p class="is-size-7 is-uppercase">
+                        
+                    </p>
+                </div>
+            </div>
+        </article>
+        
+        <article class="media">
+            
+            <a href="/2019/12/28/Jenkins-role-base-authorization-strategy-plugin/" class="media-left">
+                <p class="image is-64x64">
+                    <img class="thumbnail" src="/picture/2019/20191228003.png" alt="Jenkins的权限管理">
+                </p>
+            </a>
+            
+            <div class="media-content">
+                <div class="content">
+                    <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2019-12-28T08:11:00.000Z">2019-12-28</time></div>
+                    <a href="/2019/12/28/Jenkins-role-base-authorization-strategy-plugin/" class="has-link-black-ter is-size-6">Jenkins的权限管理</a>
+                    <p class="is-size-7 is-uppercase">
+                        
+                    </p>
+                </div>
+            </div>
+        </article>
+        
+        <article class="media">
+            
+            <a href="/2019/12/28/Jenkins-startup-error/" class="media-left">
+                <p class="image is-64x64">
+                    <img class="thumbnail" src="/picture/2019/20191228001.png" alt="Jenkins启动报错解决">
+                </p>
+            </a>
+            
+            <div class="media-content">
+                <div class="content">
+                    <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2019-12-28T07:31:00.000Z">2019-12-28</time></div>
+                    <a href="/2019/12/28/Jenkins-startup-error/" class="has-link-black-ter is-size-6">Jenkins启动报错解决</a>
+                    <p class="is-size-7 is-uppercase">
+                        
+                    </p>
+                </div>
+            </div>
+        </article>
+        
+        <article class="media">
+            
+            <a href="/2019/12/18/springmvc-to-springboot-web/" class="media-left">
+                <p class="image is-64x64">
+                    <img class="thumbnail" src="/picture/2019/20191218001.png" alt="SpringMvc项目改造成springboot+web项目踩坑指南">
+                </p>
+            </a>
+            
+            <div class="media-content">
+                <div class="content">
+                    <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2019-12-18T06:11:00.000Z">2019-12-18</time></div>
+                    <a href="/2019/12/18/springmvc-to-springboot-web/" class="has-link-black-ter is-size-6">SpringMvc项目改造成springboot+web项目踩坑指南</a>
+                    <p class="is-size-7 is-uppercase">
+                        
+                    </p>
+                </div>
+            </div>
+        </article>
+        
+        <article class="media">
+            
+            <a href="/2019/11/26/solve-es-startup-error/" class="media-left">
+                <p class="image is-64x64">
+                    <img class="thumbnail" src="/picture/2019/20191126001.png" alt="Elasticsearch启动异常处理">
+                </p>
+            </a>
+            
+            <div class="media-content">
+                <div class="content">
+                    <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2019-11-26T11:40:00.000Z">2019-11-26</time></div>
+                    <a href="/2019/11/26/solve-es-startup-error/" class="has-link-black-ter is-size-6">Elasticsearch启动异常处理</a>
+                    <p class="is-size-7 is-uppercase">
+                        
+                    </p>
+                </div>
+            </div>
+        </article>
+        
+    </div>
+</div>
+
+        
+            <div class="card widget">
+    <div class="card-content">
+        <div class="menu">
+        <h3 class="menu-label">
+            归档
+        </h3>
+        <ul class="menu-list">
+        
+        <li>
+            <a class="level is-marginless" href="/archives/2020/03/">
+                <span class="level-start">
+                    <span class="level-item">三月 2020</span>
+                </span>
+                <span class="level-end">
+                    <span class="level-item tag">1</span>
+                </span>
+            </a>
+        </li>
+        
+        <li>
+            <a class="level is-marginless" href="/archives/2019/12/">
+                <span class="level-start">
+                    <span class="level-item">十二月 2019</span>
+                </span>
+                <span class="level-end">
+                    <span class="level-item tag">3</span>
+                </span>
+            </a>
+        </li>
+        
+        <li>
+            <a class="level is-marginless" href="/archives/2019/11/">
+                <span class="level-start">
+                    <span class="level-item">十一月 2019</span>
+                </span>
+                <span class="level-end">
+                    <span class="level-item tag">1</span>
+                </span>
+            </a>
+        </li>
+        
+        <li>
+            <a class="level is-marginless" href="/archives/2019/10/">
+                <span class="level-start">
+                    <span class="level-item">十月 2019</span>
+                </span>
+                <span class="level-end">
+                    <span class="level-item tag">6</span>
+                </span>
+            </a>
+        </li>
+        
+        <li>
+            <a class="level is-marginless" href="/archives/2019/09/">
+                <span class="level-start">
+                    <span class="level-item">九月 2019</span>
+                </span>
+                <span class="level-end">
+                    <span class="level-item tag">2</span>
+                </span>
+            </a>
+        </li>
+        
+        <li>
+            <a class="level is-marginless" href="/archives/2019/07/">
+                <span class="level-start">
+                    <span class="level-item">七月 2019</span>
+                </span>
+                <span class="level-end">
+                    <span class="level-item tag">1</span>
+                </span>
+            </a>
+        </li>
+        
+        <li>
+            <a class="level is-marginless" href="/archives/2019/06/">
+                <span class="level-start">
+                    <span class="level-item">六月 2019</span>
+                </span>
+                <span class="level-end">
+                    <span class="level-item tag">2</span>
+                </span>
+            </a>
+        </li>
+        
+        <li>
+            <a class="level is-marginless" href="/archives/2019/05/">
+                <span class="level-start">
+                    <span class="level-item">五月 2019</span>
+                </span>
+                <span class="level-end">
+                    <span class="level-item tag">1</span>
+                </span>
+            </a>
+        </li>
+        
+        <li>
+            <a class="level is-marginless" href="/archives/2018/12/">
+                <span class="level-start">
+                    <span class="level-item">十二月 2018</span>
+                </span>
+                <span class="level-end">
+                    <span class="level-item tag">2</span>
+                </span>
+            </a>
+        </li>
+        
+        <li>
+            <a class="level is-marginless" href="/archives/2018/11/">
+                <span class="level-start">
+                    <span class="level-item">十一月 2018</span>
+                </span>
+                <span class="level-end">
+                    <span class="level-item tag">2</span>
+                </span>
+            </a>
+        </li>
+        
+        <li>
+            <a class="level is-marginless" href="/archives/2018/09/">
+                <span class="level-start">
+                    <span class="level-item">九月 2018</span>
+                </span>
+                <span class="level-end">
+                    <span class="level-item tag">4</span>
+                </span>
+            </a>
+        </li>
+        
+        <li>
+            <a class="level is-marginless" href="/archives/2018/06/">
+                <span class="level-start">
+                    <span class="level-item">六月 2018</span>
+                </span>
+                <span class="level-end">
+                    <span class="level-item tag">17</span>
+                </span>
+            </a>
+        </li>
+        
+        <li>
+            <a class="level is-marginless" href="/archives/2018/05/">
+                <span class="level-start">
+                    <span class="level-item">五月 2018</span>
+                </span>
+                <span class="level-end">
+                    <span class="level-item tag">2</span>
+                </span>
+            </a>
+        </li>
+        
+        <li>
+            <a class="level is-marginless" href="/archives/2018/04/">
+                <span class="level-start">
+                    <span class="level-item">四月 2018</span>
+                </span>
+                <span class="level-end">
+                    <span class="level-item tag">1</span>
+                </span>
+            </a>
+        </li>
+        
+        <li>
+            <a class="level is-marginless" href="/archives/2018/01/">
+                <span class="level-start">
+                    <span class="level-item">一月 2018</span>
+                </span>
+                <span class="level-end">
+                    <span class="level-item tag">1</span>
+                </span>
+            </a>
+        </li>
+        
+        <li>
+            <a class="level is-marginless" href="/archives/2017/12/">
+                <span class="level-start">
+                    <span class="level-item">十二月 2017</span>
+                </span>
+                <span class="level-end">
+                    <span class="level-item tag">5</span>
+                </span>
+            </a>
+        </li>
+        
+        </ul>
+        </div>
+    </div>
+</div>
+        
+            <div class="card widget">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                标签
+            </h3>
+            <div class="field is-grouped is-grouped-multiline">
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/IDE/">
+                        <span class="tag">IDE</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/Jenkins/">
+                        <span class="tag">Jenkins</span>
+                        <span class="tag is-grey">4</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/cmd/">
+                        <span class="tag">cmd</span>
+                        <span class="tag is-grey">4</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/docker/">
+                        <span class="tag">docker</span>
+                        <span class="tag is-grey">3</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/dubbo/">
+                        <span class="tag">dubbo</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/elasticsearch/">
+                        <span class="tag">elasticsearch</span>
+                        <span class="tag is-grey">2</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/filebeat/">
+                        <span class="tag">filebeat</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/git/">
+                        <span class="tag">git</span>
+                        <span class="tag is-grey">2</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/java/">
+                        <span class="tag">java</span>
+                        <span class="tag is-grey">7</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/kafka/">
+                        <span class="tag">kafka</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/kibana/">
+                        <span class="tag">kibana</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/linux/">
+                        <span class="tag">linux</span>
+                        <span class="tag is-grey">7</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/logstash/">
+                        <span class="tag">logstash</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/mysql/">
+                        <span class="tag">mysql</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/nginx/">
+                        <span class="tag">nginx</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/python/">
+                        <span class="tag">python</span>
+                        <span class="tag is-grey">11</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/shell/">
+                        <span class="tag">shell</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/spring/">
+                        <span class="tag">spring</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/web/">
+                        <span class="tag">web</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/windows/">
+                        <span class="tag">windows</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/博客/">
+                        <span class="tag">博客</span>
+                        <span class="tag is-grey">3</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/图集/">
+                        <span class="tag">图集</span>
+                        <span class="tag is-grey">8</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/摘抄笔记/">
+                        <span class="tag">摘抄笔记</span>
+                        <span class="tag is-grey">2</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/浏览器/">
+                        <span class="tag">浏览器</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/源码/">
+                        <span class="tag">源码</span>
+                        <span class="tag is-grey">2</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/线程池/">
+                        <span class="tag">线程池</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/设计模式/">
+                        <span class="tag">设计模式</span>
+                        <span class="tag is-grey">2</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/起航/">
+                        <span class="tag">起航</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/随笔/">
+                        <span class="tag">随笔</span>
+                        <span class="tag is-grey">11</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/面试/">
+                        <span class="tag">面试</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+</div>
+        
+        </div>
+    
+</div>
+
+                
+
+
+            </div>
+        </div>
+    </section>
+    <footer class="footer">
+    <div class="container">
+        <div class="level">
+            <div class="level-start has-text-centered-mobile">
+                <a class="footer-logo is-block has-mb-6" href="/">
+                
+                    <img src="/img/logo.png" alt="Dockerfile极简入门与实践" height="28">
+                
+                </a>
+                <p class="is-size-7">
+                &copy; 2020 Trainoo&nbsp;
+                Powered by <a href="http://hexo.io/" target="_blank">Hexo</a> Theme base on <a href="http://github.com/ppoffice/hexo-theme-icarus" target="_blank">Icarus</a>
+                </p>
+            </div>
+            <div class="level-end">
+            
+                <div class="field has-addons is-flex-center-mobile has-mt-5-mobile is-flex-wrap is-flex-middle">
+                
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Creative Commons" href="https://creativecommons.org/">
+                        
+                        <i class="fab fa-creative-commons"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/">
+                        
+                        <i class="fab fa-creative-commons-by"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Follow me on GitHub" href="https://github.com/trainoozhou">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                </p>
+                
+                </div>
+            
+			
+            </div>
+			<div>
+			<p class="is-size-7" style="text-align: center">
+				<span id="timeDate">Loading date...</span><span id="times">Loading minutes...</span>
+				<script>
+					var now = new Date(); 
+					function createtime() { 
+						var grt= new Date("12/14/2017 12:00:00"); //此处修改你的建站时间或者网站上线时间
+						now.setTime(now.getTime()+250); 
+						days = (now - grt ) / 1000 / 60 / 60 / 24; dnum = Math.floor(days); 
+						hours = (now - grt ) / 1000 / 60 / 60 - (24 * dnum); hnum = Math.floor(hours); 
+						if(String(hnum).length ==1 ){hnum = "0" + hnum;} minutes = (now - grt ) / 1000 /60 - (24 * 60 * dnum) - (60 * hnum); 
+						mnum = Math.floor(minutes); if(String(mnum).length ==1 ){mnum = "0" + mnum;} 
+						seconds = (now - grt ) / 1000 - (24 * 60 * 60 * dnum) - (60 * 60 * hnum) - (60 * mnum); 
+						snum = Math.round(seconds); if(String(snum).length ==1 ){snum = "0" + snum;} 
+						document.getElementById("timeDate").innerHTML = "&#9829; Security Run For "+dnum+" Days "; 
+						document.getElementById("times").innerHTML = hnum + " : " + mnum + " : " + snum + " &#9829;"; 
+					} 
+					setInterval("createtime()",250);
+				</script>
+				
+				<br>
+				<span id="busuanzi_container_site_uv">
+				共<span id="busuanzi_value_site_uv">0</span>个访客
+				</span>
+				
+			</p>
+			</div>
+        </div>
+    </div>
+</footer>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script>
+<script>moment.locale("zh-CN");</script>
+
+
+    
+    
+    
+    <script src="/js/animation.js"></script>
+    
+
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/lightgallery@1.6.8/dist/js/lightgallery.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/js/jquery.justifiedGallery.min.js" defer></script>
+    <script src="/js/gallery.js" defer></script>
+    
+
+    
+    
+
+<div id="outdated">
+    <h6>Your browser is out-of-date!</h6>
+    <p>Update your browser to view this website correctly. <a id="btnUpdateBrowser" href="http://outdatedbrowser.com/">Update
+            my browser now </a></p>
+    <p class="last"><a href="#" id="btnCloseUpdateBrowser" title="Close">&times;</a></p>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.js" defer></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        outdatedBrowser({
+            bgColor: '#f25648',
+            color: '#ffffff',
+            lowerThan: 'flex'
+        });
+    });
+</script>
+
+
+    
+    
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/unpacked/MathJax.js?config=TeX-MML-AM_CHTML" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    MathJax.Hub.Config({
+        'HTML-CSS': {
+            matchFontHeight: false
+        },
+        SVG: {
+            matchFontHeight: false
+        },
+        CommonHTML: {
+            matchFontHeight: false
+        },
+        tex2jax: {
+            inlineMath: [
+                ['$','$'],
+                ['\\(','\\)']
+            ]
+        }
+    });
+});
+</script>
+
+    
+    
+
+<a id="back-to-top" title="回到顶端" href="javascript:;">
+    <i class="fas fa-chevron-up"></i>
+</a>
+<script src="/js/back-to-top.js" defer></script>
+
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script>
+    <script src="/js/clipboard.js" defer></script>
+    
+
+    
+    
+    
+
+    
+
+
+<script src="/js/main.js" defer></script>
+
+    
+    <div class="searchbox ins-search">
+    <div class="searchbox-container ins-search-container">
+        <div class="searchbox-input-wrapper">
+            <input type="text" class="searchbox-input ins-search-input" placeholder="想要查找什么...">
+            <span class="searchbox-close ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="searchbox-result-wrapper ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+    (function (window) {
+        var INSIGHT_CONFIG = {
+            TRANSLATION: {
+                POSTS: '文章',
+                PAGES: '页面',
+                CATEGORIES: '分类',
+                TAGS: '标签',
+                UNTITLED: '(无标题)',
+            },
+            CONTENT_URL: '/content.json',
+        };
+        window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+    })(window);
+</script>
+<script src="/js/insight.js" defer></script>
+<link rel="stylesheet" href="/css/search.css">
+<link rel="stylesheet" href="/css/insight.css">
+    
+
+    <!-- 主题设置 -->
+    <script type="text/javascript" src="/js/theme-setting.js" }=""></script>
+    <script type="text/javascript" src="/js/universe.js"></script>
+
+	<!-- 鼠标点击特效 -->
+	<script type="text/javascript">
+      var windowWidth = $(window).width();
+      if (windowWidth > 480) {
+		// 烟花特效
+		document.write('<canvas class="fireworks" width="100%" height="100%" style="position: fixed; left: 0; top: 0; z-index: 99999999; pointer-events: none;"></canvas>');
+        document.write('<script type="text/javascript" src="/js/anime.min.js"><\/script>');
+		document.write('<script type="text/javascript" src="/js/fireworks.js"><\/script>');
+		// 爱心
+		document.write('<script type="text/javascript" src="/js/click.js"><\/script>');
+      }
+    </script>
+
+	<!-- 处理文章链接地址 -->
+	<script type="text/javascript">
+		window.onload=function (){
+			var curWwwPath=window.document.location.href;
+			var pathName=window.document.location.pathname;
+			var pos=curWwwPath.indexOf(pathName);
+			var url=curWwwPath.substring(0, pos);
+			var title = $('.artTitle').html();
+			$('.artTitle').html(url + "/" + title);
+		}
+	</script>
+</body>
+</html>
