@@ -1,3 +1,24 @@
-// build time:Thu Jun 18 2020 11:09:09 GMT+0800 (GMT+08:00)
-$(function(){$.getJSON("../friend/friend.json",function(e){$(".links-content").html("");$.each(e,function(e,n){var i='<div class="friend-card-item">';if(n.src==undefined){i+='    <img class="ava" src="/friend/default.jpg" title="图片链接不可用，使用的默认图片">'}else{i+='    <img class="ava" src="'+n.src+'">'}i+="<div class='text-desc' title=\""+n.desc+'">'+"名称："+n.name+"<br>"+'地址：<a href="'+n.url+'" target="_blank">'+n.url+"</a><br>"+"简介："+n.desc+"</div>"+"</div>";$(".links-content").append(i)});$(".links-content").append("</div>")})});
-//rebuild by neat 
+// author by removef
+// https://removeif.github.io/
+$(function () { //获取处理友链数据
+    $.getJSON("../friend/friend.json", function (data) {
+        $('.links-content').html("");
+        $.each(data, function (i, e) {
+            var html = "<div class=\"friend-card-item\">";
+            if (e.src == undefined) {
+                html += "    <img class=\"ava\" src=\"/friend/default.jpg\" title=\"图片链接不可用，使用的默认图片\">";
+            } else {
+                html += "    <img class=\"ava\" src=\"" + e.src + "\">";
+            }
+            html +=
+                "<div class='text-desc' title=\""+e.desc+"\">" +
+                "名称：" + e.name + "<br>" +
+                "地址：<a href=\"" + e.url + "\" target=\"_blank\">" + e.url + "</a><br>" +
+                "简介：" + e.desc + "</div>" +
+                "</div>";
+
+            $('.links-content').append(html);
+        });
+        $('.links-content').append("</div>");
+    })
+});
